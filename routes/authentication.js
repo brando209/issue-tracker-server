@@ -28,4 +28,16 @@ router.post('/register', async (req, res) => {
     }
 });
 
+router.post('/login', async (req, res) => {
+    //Verify that the user exists
+    const user = await db.hasUser({ userName: req.body.userName, email: req.body.email });
+    if (!user) return res.status(400).send({ success: false, message: "User does not exist" });
+
+    // Verify that the password is correct
+    const validPassword = await bcrypt.compare(req.body.password, user.password);
+    if (!validPassword) return res.status(400).send({ success: false, message: "Invalid password." });
+
+    return res.json({ success: true });
+})
+
 module.exports = router;
