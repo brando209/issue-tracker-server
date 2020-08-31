@@ -19,7 +19,7 @@ class Database {
                 return resolve(JSON.parse(JSON.stringify(result)));
             });
         })
-    };
+    }
 
     async addUser(user) {
         const sqlQuery = "INSERT INTO users (firstName, lastName, userName, email, password) VALUES (?)";
@@ -28,16 +28,17 @@ class Database {
         return result.insertId;
     }
 
+    //Checks the 'email' and the 'userName' properties of 'user' object against the database
     async hasUser(user) {
         if(!user || (!user.email && !user.userName)) { return false; }
 
-        const checkEmail = "SELECT * FROM users WHERE email = ?";
-        const checkUsername = "SELECT * FROM users WHERE userName = ?";
+        const usernameQuery = "SELECT * FROM users WHERE userName = ?";
+        const emailQuery = "SELECT * FROM users WHERE email = ?";
 
-        const hasEmail = await this.makeSqlQuery(checkEmail, user.email).then(data => data[0]).catch(err => new Error("checking for user by email"));
-        const hasUsername = await this.makeSqlQuery(checkUsername, user.userName).then(data => data[0]).catch(err => new Error("checking for user by userName"));
+        const userWithUsername = await this.makeSqlQuery(usernameQuery, user.userName).then(data => data[0]).catch(err => new Error("checking for user by userName"));
+        const userWithEmail = await this.makeSqlQuery(emailQuery, user.email).then(data => data[0]).catch(err => new Error("checking for user by email"));
 
-        if(hasUsername || hasEmail) { return true; }
+        if(userWithUsername || userWithEmail) { return userWithUsername; }    
 
         return false;
     }
