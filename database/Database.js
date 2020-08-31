@@ -35,10 +35,13 @@ class Database {
         const usernameQuery = "SELECT * FROM users WHERE userName = ?";
         const emailQuery = "SELECT * FROM users WHERE email = ?";
 
+        // Query database to see if user with same userName exists
         const userWithUsername = await this.makeSqlQuery(usernameQuery, user.userName).then(data => data[0]).catch(err => new Error("checking for user by userName"));
+        // Query database to see if user with same email exists
         const userWithEmail = await this.makeSqlQuery(emailQuery, user.email).then(data => data[0]).catch(err => new Error("checking for user by email"));
 
-        if(userWithUsername || userWithEmail) { return userWithUsername; }    
+        //If there is a user which has either the same userName or the same email then return that user object
+        if(userWithUsername || userWithEmail) return userWithUsername ? userWithUsername : userWithEmail;  
 
         return false;
     }
