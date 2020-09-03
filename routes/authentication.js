@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const db = require('../database/Database');
+const authorizeJWT = require('../middlewares/authorization');
 
 var dotenv = require('dotenv');
 dotenv.config();
@@ -37,7 +39,20 @@ router.post('/login', async (req, res) => {
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) return res.status(400).send({ success: false, message: "Invalid password." });
 
-    return res.json({ success: true });
-})
+    // Create and assign auth token (for authorization)
+    const token = jwt.sign({
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        userName: user.userName,
+        email: user.email
+    }, process.env.TOKEN_SECRET);
+
+    return res.json({ success: true, token: token });
+});
+
+router.get('/protected', authorizeJWT, (req, res) => {
+    return res.status(200).send("User id: " + req.user.id);
+});
 
 module.exports = router;
