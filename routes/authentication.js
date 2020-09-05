@@ -32,8 +32,10 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
     //Verify that the user exists
-    const user = await db.hasUser({ userName: req.body.userName, email: req.body.email });
-    if (!user) return res.status(400).send({ success: false, message: "User does not exist" });
+    const userExists = await db.hasUser({ userName: req.body.userName, email: req.body.email });
+    if (!userExists) return res.status(400).send({ success: false, message: "User does not exist" });
+
+    const user = await db.getUser({ userName: req.body.userName, email: req.body.email });
 
     // Verify that the password is correct
     const validPassword = await bcrypt.compare(req.body.password, user.password);
@@ -55,4 +57,10 @@ router.get('/protected', authorizeJWT, (req, res) => {
     return res.status(200).send("User id: " + req.user.id);
 });
 
+router.delete('/delete', authorizeJWT, async (req, res) => {
+    const userDeleted = await db.removeUser({ id: req.user.id }).catch(err => console.log(err));
+    if(userDeleted) return res.status(200).send({success: true, message: "User deleted"});
+    return res.status(400).send({ success: false, message: "User deletion failed" });
+})
+    
 module.exports = router;

@@ -31,19 +31,34 @@ class Database {
     //Checks the 'email' and the 'userName' properties of 'user' object against the database
     async hasUser(user) {
         if(!user || (!user.email && !user.userName)) { return false; }
+        const sqlQuery = "SELECT * FROM users WHERE userName = ? OR email = ?";
+        // Query database to see if user with same userName or email exists
+        const userExists = await this.makeSqlQuery(sqlQuery, [user.userName, user.email]).then(data => data.length).catch(err => new Error("Error accessing database"));
+        return userExists;
+    }
 
-        const usernameQuery = "SELECT * FROM users WHERE userName = ?";
-        const emailQuery = "SELECT * FROM users WHERE email = ?";
+    async getUser(user) {
+        if(!user || (!user.email && !user.userName)) { return null; }
 
-        // Query database to see if user with same userName exists
-        const userWithUsername = await this.makeSqlQuery(usernameQuery, user.userName).then(data => data[0]).catch(err => new Error("checking for user by userName"));
-        // Query database to see if user with same email exists
-        const userWithEmail = await this.makeSqlQuery(emailQuery, user.email).then(data => data[0]).catch(err => new Error("checking for user by email"));
+        // Query the database by userName first, if none then query by email
+        let sqlQuery = "SELECT * FROM users WHERE userName = ?";
+        let value = user.userName;
+        if(!user.userName) {
+            sqlQuery = "SELECT * FROM users WHERE email = ?";
+            value = user.email;
+        }
+        // Query database to see if user with same userName or email exists
+        const existingUser = await this.makeSqlQuery(sqlQuery, value).then(data => data[0]).catch(err => new Error("Error accessing database"));
+        return existingUser;
+    }
 
-        //If there is a user which has either the same userName or the same email then return that user object
-        if(userWithUsername || userWithEmail) return userWithUsername ? userWithUsername : userWithEmail;  
+    async removeUser(user) {
+        if(!user || !user.id) { return false; }
 
-        return false;
+        const sqlQuery = "DELETE FROM users WHERE id = ?";
+        const userDeleted = await this.makeSqlQuery(sqlQuery, user.id).then(data => data[0]).catch(err => new Error("Error accessing database"));
+
+        return userDeleted;
     }
 }
 
