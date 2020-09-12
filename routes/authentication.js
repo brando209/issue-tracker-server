@@ -57,10 +57,16 @@ router.get('/protected', authorizeJWT, (req, res) => {
     return res.status(200).send("User id: " + req.user.id);
 });
 
-router.delete('/delete', authorizeJWT, async (req, res) => {
+router.delete('/user', authorizeJWT, async (req, res) => {
     const userDeleted = await db.removeUser({ id: req.user.id }).catch(err => console.log(err));
-    if(userDeleted) return res.status(200).send({success: true, message: "User deleted"});
+    if (userDeleted) return res.status(200).send({ success: true, message: "User deleted" });
     return res.status(400).send({ success: false, message: "User deletion failed" });
 })
-    
+
+router.patch('/user', authorizeJWT, async (req, res) => {
+    const userUpdated = await db.updateUser({ id: req.user.id }, req.body.update);
+    if (userUpdated) { return res.status(200).send({ success: true, message: "User update successful" }) }
+    return res.status(400).send({ success: false, message: "User update failed" });
+});
+
 module.exports = router;

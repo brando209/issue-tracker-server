@@ -60,6 +60,20 @@ class Database {
 
         return userDeleted;
     }
+
+    async updateUser(user, updateObject) {
+        if(!user || !user.id) { return null; }
+
+        // Create string for SET clause of update query
+        let updates = "";
+        for(let key of Object.keys(updateObject)) { updates += `${key} = '${updateObject[key]}', ` }
+        updates = updates.substring(0, updates.length - 2); //remove last comma
+
+        //
+        const sqlQuery = `UPDATE users SET ${updates} WHERE id = ?`;   
+        const updatedUser = await this.makeSqlQuery(sqlQuery, user.id).then(data => data.changedRows).catch(err => new Error("Error accessing database"));
+        return updatedUser ? true : false;
+    }
 }
 
 module.exports = new Database(connection);
