@@ -24,9 +24,9 @@ router.post('/register', async (req, res) => {
     //Add new user to database
     try {
         const newUserId = await db.addUser(newUser);
-        res.send({ success: true, userId: newUserId });
+        return res.send({ success: true, userId: newUserId });
     } catch (err) {
-        res.status(400).send({ success: false, message: err });
+        return res.status(400).send({ success: false, message: err });
     }
 });
 
@@ -61,7 +61,7 @@ router.delete('/user', authorizeJWT, async (req, res) => {
     const userDeleted = await db.removeUser({ id: req.user.id }).catch(err => console.log(err));
     if (userDeleted) return res.status(200).send({ success: true, message: "User deleted" });
     return res.status(400).send({ success: false, message: "User deletion failed" });
-})
+});
 
 router.patch('/user', authorizeJWT, async (req, res) => {
     const userUpdated = await db.updateUser({ id: req.user.id }, req.body.update);
