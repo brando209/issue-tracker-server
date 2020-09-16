@@ -5,6 +5,7 @@ const cors = require('cors');
 var dotenv = require('dotenv');
 
 const authRouter = require('./routes/authentication');
+const projectRouter = require('./routes/projects');
 
 const API_PORT = 3001;
 
@@ -29,6 +30,6 @@ app.use(express.urlencoded({ extended: false }));
 
 //Route Middlewares
 app.use('/api/auth', authRouter);
-
+app.use('/api/projects', projectRouter);
 
 app.listen(API_PORT, console.log(`Listening on port ${API_PORT}`));
