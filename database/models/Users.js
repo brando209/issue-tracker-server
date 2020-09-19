@@ -1,3 +1,5 @@
+const { setUpdateString } = require('../utils');
+
 class Users {
     makeSqlQuery;
     constructor(makeSqlQuery) {
@@ -12,7 +14,7 @@ class Users {
     }
 
     async has(user) {
-        if(!user || (!user.email && !user.userName)) { return false; }
+        if (!user || (!user.email && !user.userName)) { return false; }
         const sqlQuery = "SELECT * FROM users WHERE userName = ? OR email = ?";
         // Query database to see if user with same userName or email exists
         const userExists = await this.makeSqlQuery(sqlQuery, [user.userName, user.email]).then(data => data.length).catch(err => new Error("Error accessing database"));
@@ -20,12 +22,12 @@ class Users {
     }
 
     async get(user) {
-        if(!user || (!user.email && !user.userName)) { return null; }
+        if (!user || (!user.email && !user.userName)) { return null; }
 
         // Query the database by userName first, if none then query by email
         let sqlQuery = "SELECT * FROM users WHERE userName = ?";
         let value = user.userName;
-        if(!user.userName) {
+        if (!user.userName) {
             sqlQuery = "SELECT * FROM users WHERE email = ?";
             value = user.email;
         }
@@ -35,7 +37,7 @@ class Users {
     }
 
     async remove(user) {
-        if(!user || !user.id) { return false; }
+        if (!user || !user.id) { return false; }
 
         const sqlQuery = "DELETE FROM users WHERE id = ?";
         const userDeleted = await this.makeSqlQuery(sqlQuery, user.id).then(data => data[0]).catch(err => new Error("Error accessing database"));
@@ -44,15 +46,11 @@ class Users {
     }
 
     async update(user, updateObject) {
-        if(!user || !user.id) { return null; }
+        if (!user || !user.id) { return null; }
 
-        // Create string for SET clause of update query
-        let updates = "";
-        for(let key of Object.keys(updateObject)) { updates += `${key} = '${updateObject[key]}', ` }
-        updates = updates.substring(0, updates.length - 2); //remove last comma
+        const updateString = setUpdateString(updateObject);
 
-        //
-        const sqlQuery = `UPDATE users SET ${updates} WHERE id = ?`;   
+        const sqlQuery = `UPDATE users SET ${updateString} WHERE id = ?`;
         const updatedUser = await this.makeSqlQuery(sqlQuery, user.id).then(data => data.changedRows).catch(err => new Error("Error accessing database"));
         return updatedUser ? true : false;
     }

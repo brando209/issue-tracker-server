@@ -1,3 +1,5 @@
+const { setUpdateString } = require("../utils");
+
 class Projects {
     makeSqlQuery;
     constructor(makeSqlQuery) {
@@ -24,11 +26,9 @@ class Projects {
 
     async update(projectId, updateObject) {
         // Create string argument for SET clause of update query
-        let updates = "";
-        for(let key of Object.keys(updateObject)) { updates += `${key} = '${updateObject[key]}', ` }
-        updates = updates.substring(0, updates.length - 2); //remove last comma
+        const updateString = setUpdateString(updateObject);
 
-        const sqlQuery = `UPDATE projects SET ${updates} WHERE id = ?`;
+        const sqlQuery = `UPDATE projects SET ${updateString} WHERE id = ?`;
         const projectUpdated = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.changedRows).catch(err => false);
         return projectUpdated;
     }
