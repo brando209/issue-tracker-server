@@ -1,9 +1,12 @@
+const Issue = require('./Issues');
 const { setUpdateString } = require("../utils");
 
 class Projects {
     makeSqlQuery;
+    issue;
     constructor(makeSqlQuery) {
         this.makeSqlQuery = makeSqlQuery;
+        this.issue = new Issue(makeSqlQuery);
     }
 
     async create(newProject, creatorId) {
@@ -34,10 +37,13 @@ class Projects {
     }
 
     async delete(projectId) {
-        const sqlqQery = "DELETE FROM projects WHERE id = ?";
-        const projectDeleted = await this.makeSqlQuery(sqlqQery, projectId).then(data => data.affectedRows).catch(err => false);
+        const sqlQuery = "DELETE FROM projects WHERE id = ?";
+        const projectDeleted = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.affectedRows).catch(err => false);
         return projectDeleted;
     }
+
+    newIssue = (issue, projectId, creatorId) => this.issue.create(issue, projectId, creatorId);
+    getIssue = (projectId, issueId) => this.issue.get(projectId, issueId);
 }
 
 module.exports = Projects;

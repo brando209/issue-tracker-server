@@ -28,17 +28,19 @@ class Database {
         })
     }
 
-    addUser = async (user) => this.#user.add(user);
-    hasUser = async (user) => this.#user.has(user);
-    getUser = async (user) => this.#user.get(user);
-    removeUser = async (user) => this.#user.remove(user);
+    addUser = (user) => this.#user.add(user);
+    hasUser = (user) => this.#user.has(user);
+    getUser = (user) => this.#user.get(user);
+    removeUser = (user) => this.#user.remove(user);
     updateUser = (user, updateObject) => this.#user.update(user, updateObject);
 
-    createProject = async (newProject, creatorId) => this.#project.create(newProject, creatorId);
-    getProject = async (projectId) => this.#project.get(projectId);
-    updateProject = async (projectId, updateObject) => this.#project.update(projectId, updateObject);
-    deleteProject = async (projectId) => this.#project.delete(projectId);
+    createProject = (newProject, creatorId) => this.#project.create(newProject, creatorId);
+    getProject = (projectId) => this.#project.get(projectId);
+    updateProject = (projectId, updateObject) => this.#project.update(projectId, updateObject);
+    deleteProject = (projectId) => this.#project.delete(projectId);
 
+    addIssue = (newIssue, projectId, creatorId) => this.#project.newIssue(newIssue, projectId, creatorId);
+    getIssue = (projectId, issueId) => this.#project.getIssue(projectId, issueId);
 }
 
 module.exports = new Database(connection);
