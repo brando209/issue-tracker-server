@@ -32,18 +32,20 @@ class Projects {
         const updateString = setUpdateString(updateObject);
 
         const sqlQuery = `UPDATE projects SET ${updateString} WHERE id = ?`;
-        const projectUpdated = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.changedRows).catch(err => false);
+        const projectUpdated = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.changedRows);
         return projectUpdated;
     }
 
     async delete(projectId) {
         const sqlQuery = "DELETE FROM projects WHERE id = ?";
-        const projectDeleted = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.affectedRows).catch(err => false);
+        const projectDeleted = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.affectedRows);
         return projectDeleted;
     }
 
     newIssue = (issue, projectId, creatorId) => this.issue.create(issue, projectId, creatorId);
     getIssue = (projectId, issueId) => this.issue.get(projectId, issueId);
+    updateIssue = (projectId, issueId, updateObject) => this.issue.update(projectId, issueId, updateObject);
+    deleteIssue = (projectId, issueId) => this.issue.delete(projectId, issueId);
 }
 
 module.exports = Projects;

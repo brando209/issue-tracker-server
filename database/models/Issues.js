@@ -26,9 +26,11 @@ class Issue {
     async update(projectId, issueId, updateObject) {
         // Create string argument for SET clause of update query
         const updateString = setUpdateString(updateObject);
-
+        issueId = Number(issueId);
+        console.log(updateString);
         const sqlQuery = `UPDATE issues SET ${updateString} WHERE id = ?`;
-        const issueUpdated = await this.makeSqlQuery(sqlQuery, issueId);
+        const issueUpdated = await this.makeSqlQuery(sqlQuery, issueId).then(data => data.changedRows);
+
         return issueUpdated;
     }
 

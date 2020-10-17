@@ -41,6 +41,8 @@ class Database {
 
     addIssue = (newIssue, projectId, creatorId) => this.#project.newIssue(newIssue, projectId, creatorId);
     getIssue = (projectId, issueId) => this.#project.getIssue(projectId, issueId);
+    updateIssue = (projectId, issueId, updateObject) => this.#project.updateIssue(projectId, issueId, updateObject);
+    deleteIssue = (projectId, issueId) => this.#project.deleteIssue(projectId, issueId);
 }
 
 module.exports = new Database(connection);
