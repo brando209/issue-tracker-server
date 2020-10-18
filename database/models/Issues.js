@@ -1,12 +1,11 @@
 const { setUpdateString } = require('../utils');
 
 class Issue {
-    makeSqlQuery;
     constructor(makeSqlQuery) {
         this.makeSqlQuery = makeSqlQuery;
     }
 
-    async create(issue, projectId, creatorId) {
+    async createIssue(issue, projectId, creatorId) {
         const addIssueQuery = `INSERT INTO issues (title, description, category, priority, creatorId, projectId) VALUES (?)`;
         const values = [issue.title, issue.description, issue.category, issue.priority, creatorId, projectId];
 
@@ -17,27 +16,54 @@ class Issue {
         return result;
     }
 
-    async get(projectId, issueId) {
+    async getSingleIssue(projectId, issueId) {
         const getIssueQuery = `SELECT * FROM issues WHERE id = ?`;
-        const result = await this.makeSqlQuery(getIssueQuery, issueId);
+
+        const result = await this.makeSqlQuery(getIssueQuery, issueId)
+            .then(data => ({ success: true, issue: data[0] }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+
         return result;
     }
 
-    async update(projectId, issueId, updateObject) {
-        // Create string argument for SET clause of update query
-        const updateString = setUpdateString(updateObject);
-        issueId = Number(issueId);
-        console.log(updateString);
-        const sqlQuery = `UPDATE issues SET ${updateString} WHERE id = ?`;
-        const issueUpdated = await this.makeSqlQuery(sqlQuery, issueId).then(data => data.changedRows);
+    async getAllIssues(projectId) {
+        const getAllQuery = `
+            SELECT issues.* FROM issues 
+            INNER JOIN projects 
+            ON issues.projectId = projects.id 
+            Where issues.projectId = ?`
 
-        return issueUpdated;
+        const result = await this.makeSqlQuery(getAllQuery, projectId)
+            .then(data => ({ success: true, issues: data }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+
+        return result
     }
 
-    async delete(projectId, issueId) {
+    async updateIssue(projectId, issueId, updateObject) {
+        // Create string argument for SET clause of update query
+        const updateString = setUpdateString(updateObject);
+        const sqlQuery = `UPDATE issues SET ${updateString} WHERE id = ?`;
+
+        const result = await this.makeSqlQuery(sqlQuery, issueId)
+            .then(data => ({ success: data.changedRows ? true : false }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+    
+        if(result.success) {
+            return this.getSingleIssue(projectId, issueId);
+        }
+
+        return result;
+    }
+
+    async removeIssue(projectId, issueId) {
         const sqlQuery = "DELETE FROM issues WHERE id = ?";
-        const issueDeleted = await this.makeSqlQuery(sqlQuery, projectId).then(data => data.affectedRows);
-        return issueDeleted;
+
+        const result = await this.makeSqlQuery(sqlQuery, projectId)
+            .then(data => ({ success: data.affectedRows ? true : false }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+
+        return result;
     }
 
 }

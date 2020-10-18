@@ -34,15 +34,15 @@ class Database {
     removeUser = (user) => this.#user.remove(user);
     updateUser = (user, updateObject) => this.#user.update(user, updateObject);
 
-    createProject = (newProject, creatorId) => this.#project.create(newProject, creatorId);
-    getProject = (projectId) => this.#project.get(projectId);
-    updateProject = (projectId, updateObject) => this.#project.update(projectId, updateObject);
-    deleteProject = (projectId) => this.#project.delete(projectId);
+    createProject = (newProject, creatorId) => this.#project.createProject(newProject, creatorId);
+    getProject = (projectId) => this.#project.getSingleProject(projectId);
+    updateProject = (projectId, updateObject) => this.#project.updateProject(projectId, updateObject);
+    deleteProject = (projectId) => this.#project.removeProject(projectId);
 
     addIssue = (newIssue, projectId, creatorId) => this.#project.newIssue(newIssue, projectId, creatorId);
-    getIssue = (projectId, issueId) => this.#project.getIssue(projectId, issueId);
+    getIssue = (projectId, issueId) => this.#project.getSingleIssue(projectId, issueId);
     updateIssue = (projectId, issueId, updateObject) => this.#project.updateIssue(projectId, issueId, updateObject);
-    deleteIssue = (projectId, issueId) => this.#project.deleteIssue(projectId, issueId);
+    deleteIssue = (projectId, issueId) => this.#project.removeIssue(projectId, issueId);
 }
 
 module.exports = new Database(connection);

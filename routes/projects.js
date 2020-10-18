@@ -7,27 +7,27 @@ const issueRouter = require('./issues');
 const { passRouteParams } = require('./utils');
 
 router.post('/new', authorizeJWT, async (req, res) => {
-    const newProjectId = await db.createProject(req.body.project, req.user.id);
-    if(!newProjectId) return res.status(404).send({ success: false, message: "Project not created" });
-    return res.status(200).send({ success: true, message: "Project successfully created", projectId: newProjectId });
+    const result = await db.createProject(req.body.project, req.user.id);
+    if(!result.success) return res.status(400).send({ message: "Project not created", ...result });
+    return res.status(200).send({ message: "Project successfully created", ...result });
 });
 
 router.get('/:projectId', authorizeJWT, async (req, res) => {
-    const project = await db.getProject(req.params.projectId);
-    if (!project) return res.status(404).send({ success: false, message: "Project not found" });
-    return res.status(200).send({ success: true, project: project });
+    const result = await db.getProject(req.params.projectId);
+    if (!result.success) return res.status(404).send({ message: "Project not found", ...result });
+    return res.status(200).send({ message: "Project successfully retrieved", ...result });
 });
 
 router.patch('/:projectId', authorizeJWT, async (req, res) => {
-    const updated = await db.updateProject(req.params.projectId, req.body);
-    if (!updated) return res.status(404).send({ success: false, message: "Project not updated" });
-    return res.status(200).send({ success: true, message: "Project successfully updated" });
+    const result = await db.updateProject(req.params.projectId, req.body);
+    if (!result) return res.status(404).send({ message: "Project not updated", ...result });
+    return res.status(200).send({ message: "Project successfully updated", ...result });
 });
 
 router.delete('/:projectId', authorizeJWT, async (req, res) => {
-    const deleted = await db.deleteProject(req.params.projectId);
-    if (!deleted) return res.status(404).send({ success: false, message: "Project not deleted" });
-    return res.status(200).send({ success: true, message: "Project successfully deleted" });
+    const result = await db.deleteProject(req.params.projectId);
+    if (!result.success) return res.status(404).send({ message: "Project not deleted", ...result });
+    return res.status(200).send({ message: "Project successfully deleted", ...result });
 });
 
 router.use('/:projectId/issues/', passRouteParams, issueRouter);
