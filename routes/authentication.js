@@ -22,12 +22,9 @@ router.post('/register', async (req, res) => {
     newUser.password = hashedPassword;
 
     //Add new user to database
-    try {
-        const newUserId = await db.addUser(newUser);
-        return res.send({ success: true, userId: newUserId });
-    } catch (err) {
-        return res.status(400).send({ success: false, message: err });
-    }
+    const result = await db.createUser(newUser);
+    if(!result.success) return res.status(400).send(result);
+    return res.send(result);
 });
 
 router.post('/login', async (req, res) => {
@@ -35,7 +32,7 @@ router.post('/login', async (req, res) => {
     const userExists = await db.hasUser({ userName: req.body.userName, email: req.body.email });
     if (!userExists) return res.status(400).send({ success: false, message: "User does not exist" });
 
-    const user = await db.getUser({ userName: req.body.userName, email: req.body.email });
+    const user = await db.getUser({ userName: req.body.userName, email: req.body.email }).then(data => data.user);
 
     // Verify that the password is correct
     const validPassword = await bcrypt.compare(req.body.password, user.password);
@@ -58,15 +55,15 @@ router.get('/protected', authorizeJWT, (req, res) => {
 });
 
 router.delete('/user', authorizeJWT, async (req, res) => {
-    const userDeleted = await db.removeUser({ id: req.user.id }).catch(err => console.log(err));
-    if (userDeleted) return res.status(200).send({ success: true, message: "User deleted" });
-    return res.status(400).send({ success: false, message: "User deletion failed" });
+    const userDeleted = await db.removeUser({ id: req.user.id });
+    if (!userDeleted.success) return res.status(400).send({ message: "User deletion failed", ...userDeleted });
+    return res.status(200).send({ message: "User deleted", ...userDeleted });
 });
 
 router.patch('/user', authorizeJWT, async (req, res) => {
-    const userUpdated = await db.updateUser({ id: req.user.id }, req.body.update);
-    if (userUpdated) { return res.status(200).send({ success: true, message: "User update successful" }) }
-    return res.status(400).send({ success: false, message: "User update failed" });
+    const userUpdated = await db.updateUser({ id: req.user.id }, req.body);
+    if (!userUpdated.success) return res.status(400).send({ success: false, message: "User update failed" });
+    return res.status(200).send({ message: "User update successful", ...userUpdated });
 });
 
 module.exports = router;

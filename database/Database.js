@@ -28,11 +28,11 @@ class Database {
         })
     }
 
-    addUser = (user) => this.#user.add(user);
-    hasUser = (user) => this.#user.has(user);
-    getUser = (user) => this.#user.get(user);
-    removeUser = (user) => this.#user.remove(user);
-    updateUser = (user, updateObject) => this.#user.update(user, updateObject);
+    createUser = (user) => this.#user.createUser(user);
+    hasUser = (user) => this.#user.hasUser(user);
+    getUser = (user) => this.#user.getUser(user);
+    updateUser = (user, updateObject) => this.#user.updateUser(user, updateObject);
+    removeUser = (user) => this.#user.removeUser(user);
 
     createProject = (newProject, creatorId) => this.#project.createProject(newProject, creatorId);
     getProject = (projectId) => this.#project.getSingleProject(projectId);
