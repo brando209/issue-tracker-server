@@ -5,12 +5,12 @@ const jwt = require('jsonwebtoken');
 
 const db = require('../database/Database');
 const authorizeJWT = require('../middlewares/authorization');
+const validation = require('../middlewares/validation');
 
 var dotenv = require('dotenv');
 dotenv.config();
 
-router.post('/register', async (req, res) => {
-    // console.log(req.body);
+router.post('/register', validation.register, async (req, res) => {
     const newUser = JSON.parse(JSON.stringify(req.body));
 
     // Check if the userName and email already exist in the database
@@ -27,7 +27,7 @@ router.post('/register', async (req, res) => {
     return res.send(result);
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', validation.signin, async (req, res) => {
     //Verify that the user exists
     const userExists = await db.hasUser({ userName: req.body.userName, email: req.body.email });
     if (!userExists) return res.status(400).send({ success: false, message: "User does not exist" });
