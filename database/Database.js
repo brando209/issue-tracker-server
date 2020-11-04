@@ -1,48 +1,71 @@
-const connection = require('../database/connection').getConnection();
-const User = require('./models/Users');
-const Project = require('./models/Projects');
+const mysql = require('mysql');
+require('dotenv').config();
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: process.env.DB_SECRET,
+    database: 'trackappdb',
+});
+
+const makeArray = str => typeof str === "string" && str !== "*" ? [str] : str;
 
 class Database {
-    #connection;
-    #user;
-    #project;
-
     constructor(connection) {
-        this.#connection = connection;
-        this.#connection.connect((err) => {
-            if (err) throw err;
-            console.log("Connected to database!");
-        });
-        this.#user = new User(this.makeSqlQuery);
-        this.#project = new Project(this.makeSqlQuery);
+        this.connection = connection;
+        this.open();
     }
 
-    makeSqlQuery(sqlQuery, data = []) {
-        // console.log("sqlQuery: ", sqlQuery);
-        // console.log("data: ", data);
+    open() {
+        this.connection.connect((err) => {
+            if (err) throw err;
+            console.log("Connected to database!");
+        })
+    }
+
+    async close() {
+        await this.connection.close();
+    }
+
+    runSqlQuery(sqlQuery) {
+        console.log(sqlQuery);
         return new Promise((resolve, reject) => {
-            connection.query(sqlQuery, data, (err, result) => {
+            connection.query(sqlQuery, (err, result) => {
                 if (err) return reject(err);
                 return resolve(JSON.parse(JSON.stringify(result)));
             });
         })
     }
 
-    createUser = (user) => this.#user.createUser(user);
-    hasUser = (user) => this.#user.hasUser(user);
-    getUser = (user) => this.#user.getUser(user);
-    updateUser = (user, updateObject) => this.#user.updateUser(user, updateObject);
-    removeUser = (user) => this.#user.removeUser(user);
+    query(table, columns = "*" || [], rows = "*" || [], options = "*" || [], joinOptions = null) {
+        rows = makeArray(rows);
+        columns = makeArray(columns);
+        options = makeArray(options);
+        const SQLRows = rows === "*" ? "" : rows.join(" OR ");
+        const SQLColumns = columns === "*" ? columns : columns.join(",");
+        const SQLJoin = joinOptions === null ? "" : `INNER JOIN ${joinOptions.joinTable} ON ${joinOptions.joinColumns}`;
+        const SQLOptions = options === "*" ? "" : " AND " + options.join(" AND ");
+        return this.runSqlQuery(`SELECT ${SQLColumns} FROM ${table} ${SQLJoin} ${rows === "*" && options === "*"? "" : "WHERE"} ${SQLRows}${SQLOptions};`);
+    }
 
-    createProject = (newProject, creatorId) => this.#project.createProject(newProject, creatorId);
-    getProject = (projectId) => this.#project.getSingleProject(projectId);
-    updateProject = (projectId, updateObject) => this.#project.updateProject(projectId, updateObject);
-    deleteProject = (projectId) => this.#project.removeProject(projectId);
+    addRecord(table, record) {
+        const keys = Object.keys(record);
+        const values = Object.values(record);
+        return this.runSqlQuery(`INSERT INTO ${table} (${keys.join(", ")}) VALUES ('${values.join("', '")}')`);
+    }
 
-    addIssue = (newIssue, projectId, creatorId) => this.#project.newIssue(newIssue, projectId, creatorId);
-    getIssue = (projectId, issueId) => this.#project.getSingleIssue(projectId, issueId);
-    updateIssue = (projectId, issueId, updateObject) => this.#project.updateIssue(projectId, issueId, updateObject);
-    deleteIssue = (projectId, issueId) => this.#project.removeIssue(projectId, issueId);
+    removeRecords(table, rows) {
+        rows = makeArray(rows);
+        const SQLRows = rows.join(" OR ");
+        return this.runSqlQuery(`DELETE FROM ${table} WHERE ${SQLRows}`);
+    }
+
+    updateRecords(table, columns, rows) {
+        columns = makeArray(columns);
+        rows = makeArray(rows);
+        return this.runSqlQuery(`UPDATE ${table} SET ${columns.join(", ")} WHERE ${rows.join(" OR ")}`);
+    }
+
 }
 
 module.exports = new Database(connection);

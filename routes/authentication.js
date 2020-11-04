@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-const db = require('../database/Database');
+const Users = require('../database/models/Users');
 const authorizeJWT = require('../middlewares/authorization');
 const validation = require('../middlewares/validation');
 
@@ -14,25 +14,27 @@ router.post('/register', validation.register, async (req, res) => {
     const newUser = JSON.parse(JSON.stringify(req.body));
 
     // Check if the userName and email already exist in the database
-    const userExists = await db.hasUser(newUser);
-    if (userExists) return res.status(400).send({ success: false, message: "Username or email already exists" });
+    const userExists = await Users.hasUser(newUser);
+    if(userExists) return res.status(400).send({ success: false, message: "Username or email already exists" });
 
+    console.log(userExists)
     // Hash the new user password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     newUser.password = hashedPassword;
 
     //Add new user to database
-    const result = await db.createUser(newUser);
+    const result = await Users.createUser(newUser);
+    console.log(result);
     if(!result.success) return res.status(400).send(result);
-    return res.send(result);
+    return res.status(200).send(result);
 });
 
 router.post('/login', validation.signin, async (req, res) => {
     //Verify that the user exists
-    const userExists = await db.hasUser({ userName: req.body.userName, email: req.body.email });
+    const userExists = await Users.hasUser({ userName: req.body.userName, email: req.body.email });
     if (!userExists) return res.status(400).send({ success: false, message: "User does not exist" });
 
-    const user = await db.getUser({ userName: req.body.userName, email: req.body.email }).then(data => data.user);
+    const user = await Users.getUser({ userName: req.body.userName, email: req.body.email }).then(data => data.user);
 
     // Verify that the password is correct
     const validPassword = await bcrypt.compare(req.body.password, user.password);
@@ -50,18 +52,14 @@ router.post('/login', validation.signin, async (req, res) => {
     return res.json({ success: true, token: token });
 });
 
-router.get('/protected', authorizeJWT, (req, res) => {
-    return res.status(200).send("User id: " + req.user.id);
-});
-
 router.delete('/user', authorizeJWT, async (req, res) => {
-    const userDeleted = await db.removeUser({ id: req.user.id });
+    const userDeleted = await Users.removeUser({ id: req.user.id });
     if (!userDeleted.success) return res.status(400).send({ message: "User deletion failed", ...userDeleted });
     return res.status(200).send({ message: "User deleted", ...userDeleted });
 });
 
 router.patch('/user', authorizeJWT, async (req, res) => {
-    const userUpdated = await db.updateUser({ id: req.user.id }, req.body);
+    const userUpdated = await Users.updateUser({ id: req.user.id }, req.body);
     if (!userUpdated.success) return res.status(400).send({ success: false, message: "User update failed" });
     return res.status(200).send({ message: "User update successful", ...userUpdated });
 });

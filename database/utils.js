@@ -1,9 +1,10 @@
-const setUpdateString = (updateObject) => {
-    // Create string for SET clause of update query
-    let updates = "";
-    for(let key of Object.keys(updateObject)) { updates += `${key} = '${updateObject[key]}', ` }
-    updates = updates.substring(0, updates.length - 2); //remove last comma
-    return updates;
+// Accepts an object and returns an array of strings needed for SET clause of SQL UPDATE statement
+const makeUpdateArray = (updateObject) => {
+    const keys = Object.keys(updateObject);
+    const values = Object.values(updateObject);
+    const result = [];
+    for(let i = 0; i < keys.length; i++) result.push(`${keys[i]}='${values[i]}'`);
+    return result;
 }
 
-module.exports = { setUpdateString: setUpdateString }
+module.exports = { makeUpdateArray }

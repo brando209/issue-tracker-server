@@ -1,15 +1,10 @@
-const { setUpdateString } = require('../utils');
+const db = require('../Database');
+const { makeUpdateArray } = require('../utils');
 
 class Issue {
-    constructor(makeSqlQuery) {
-        this.makeSqlQuery = makeSqlQuery;
-    }
 
     async createIssue(issue, projectId, creatorId) {
-        const addIssueQuery = `INSERT INTO issues (title, description, category, priority, creatorId, projectId) VALUES (?)`;
-        const values = [issue.title, issue.description, issue.category, issue.priority, creatorId, projectId];
-
-        const result = await this.makeSqlQuery(addIssueQuery, [values])
+        const result = await db.addRecord("issues", { ...issue, creatorId, projectId })
             .then(data => ({ success: true, issueId: data.insertId}))
             .catch(err => ({ success: false, message: err.sqlMessage }));
 
@@ -17,35 +12,24 @@ class Issue {
     }
 
     async getSingleIssue(projectId, issueId) {
-        const getIssueQuery = `SELECT * FROM issues WHERE id = ?`;
-
-        const result = await this.makeSqlQuery(getIssueQuery, issueId)
-            .then(data => ({ success: true, issue: data[0] }))
+        const result = await db.query("issues", "*", `id=${issueId}`)
+            .then(data => ({ success: data.length > 0 ? true : false, issue: data[0] }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
 
         return result;
     }
 
     async getAllIssues(projectId) {
-        const getAllQuery = `
-            SELECT issues.* FROM issues 
-            INNER JOIN projects 
-            ON issues.projectId = projects.id 
-            Where issues.projectId = ?`
-
-        const result = await this.makeSqlQuery(getAllQuery, projectId)
-            .then(data => ({ success: true, issues: data }))
+        const joinOptions = { joinTable: "projects", joinColumns: `issues.projectId = projects.id`}
+        const result = await db.query("issues", "issues.*", `issues.projectId=${projectId}`, "*", joinOptions)
+            .then(data => ({ success: data.length > 0 ? true : false, issues: data }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
 
         return result
     }
 
     async updateIssue(projectId, issueId, updateObject) {
-        // Create string argument for SET clause of update query
-        const updateString = setUpdateString(updateObject);
-        const sqlQuery = `UPDATE issues SET ${updateString} WHERE id = ?`;
-
-        const result = await this.makeSqlQuery(sqlQuery, issueId)
+        const result = await db.updateRecords("issues", makeUpdateArray(updateObject), `id=${issueId}`)
             .then(data => ({ success: data.changedRows ? true : false }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
     
@@ -57,9 +41,7 @@ class Issue {
     }
 
     async removeIssue(projectId, issueId) {
-        const sqlQuery = "DELETE FROM issues WHERE id = ?";
-
-        const result = await this.makeSqlQuery(sqlQuery, projectId)
+        const result = await db.removeRecords("issues", `id=${issueId}`)
             .then(data => ({ success: data.affectedRows ? true : false }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
 
@@ -68,4 +50,4 @@ class Issue {
 
 }
 
-module.exports = Issue;
+module.exports = new Issue;
