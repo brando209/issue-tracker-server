@@ -57,22 +57,6 @@ class Projects {
         return projectDeleted;
     }
 
-    async addProjectCollaborator(projectId, collaboratorId) {
-        const result = await db.addRecord("project_collaborators", { projectId, collaboratorId })
-            .then(data => ({ success: true }))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-
-        return result;
-    }
-
-    async removeProjectCollaborator(projectId, collaboratorId) {
-        const result = await db.removeRecords("project_collaborators", [`projectId='${projectId}'`, `collaboratorId='${collaboratorId}'`])
-            .then(data => ({ success: true }))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-
-        return result;
-    }
-
 }
 
 module.exports = new Projects;
