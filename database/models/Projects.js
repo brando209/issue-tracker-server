@@ -5,7 +5,7 @@ class Projects {
 
     async createProject(newProject, creatorId) {
         const result = await db.addRecord("projects", { ...newProject, creatorId })
-            .then(data => ({ success: true, projectId: data.insertId }))
+            .then(async data => await this.addProjectCollaborator(data.insertId, creatorId))
             .catch(err => ({ success: false, message: err.sqlMessage }));
 
         return result;
@@ -25,6 +25,23 @@ class Projects {
         return result;
     }
 
+    async getProjectsByUserId(userId) {
+        const columns = ["projects.id", "projects.name", "projects.description", "users.userName as creator"];
+        const joinOptions = [{
+            joinTable: "users",
+            joinColumns: "projects.creatorId = users.id"
+        }, {
+            joinTable: "project_collaborators pc",
+            joinColumns: "pc.projectId = projects.id"
+        }];
+
+        const result = await db.query("projects", columns, `pc.collaboratorId=${userId}`, "*", joinOptions)
+            .then(data => ({ success: data.length > 0 ? true : false, projects: data }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+
+        return result;
+    }
+
     async updateProject(projectId, updateObject) {
         const result = await db.updateRecords("projects", makeUpdateArray(updateObject), `id=${projectId}`)
             .then(data => ({ success: data.changedRows ? true : false }))
@@ -38,6 +55,22 @@ class Projects {
             .then(data => ({ success: data.affectedRows ? true : false }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return projectDeleted;
+    }
+
+    async addProjectCollaborator(projectId, collaboratorId) {
+        const result = await db.addRecord("project_collaborators", { projectId, collaboratorId })
+            .then(data => ({ success: true }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+
+        return result;
+    }
+
+    async removeProjectCollaborator(projectId, collaboratorId) {
+        const result = await db.removeRecords("project_collaborators", [`projectId='${projectId}'`, `collaboratorId='${collaboratorId}'`])
+            .then(data => ({ success: true }))
+            .catch(err => ({ success: false, message: err.sqlMessage }));
+
+        return result;
     }
 
 }
