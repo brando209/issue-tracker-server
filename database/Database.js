@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
     database: 'trackappdb',
 });
 
-const makeArray = str => typeof str === "string" && str !== "*" ? [str] : str;
+const makeArray = val => (typeof val === "string" && val !== "*") || (typeof val === "object" && !Array.isArray(val)) && val !== null ? [val] : val;
 
 class Database {
     constructor(connection) {
@@ -41,9 +41,10 @@ class Database {
         rows = makeArray(rows);
         columns = makeArray(columns);
         options = makeArray(options);
+        joinOptions = makeArray(joinOptions);
         const SQLRows = rows === "*" ? "" : rows.join(" OR ");
         const SQLColumns = columns === "*" ? columns : columns.join(",");
-        const SQLJoin = joinOptions === null ? "" : `INNER JOIN ${joinOptions.joinTable} ON ${joinOptions.joinColumns}`;
+        const SQLJoin = joinOptions === null ? "" : joinOptions.map(value => (`INNER JOIN ${value.joinTable} ON ${value.joinColumns}`)).join(" ");
         const SQLOptions = options === "*" ? "" : " AND " + options.join(" AND ");
         return this.runSqlQuery(`SELECT ${SQLColumns} FROM ${table} ${SQLJoin} ${rows === "*" && options === "*"? "" : "WHERE"} ${SQLRows}${SQLOptions};`);
     }
