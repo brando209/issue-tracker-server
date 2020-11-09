@@ -14,10 +14,9 @@ router.post('/register', validation.register, async (req, res) => {
     const newUser = JSON.parse(JSON.stringify(req.body));
 
     // Check if the userName and email already exist in the database
-    const userExists = await Users.hasUser(newUser);
-    if(userExists) return res.status(400).send({ success: false, message: "Username or email already exists" });
+    const userFound = await Users.getUser(newUser);
+    if(userFound.success) return res.status(400).send({ success: false, message: "Username or email already exists" });
 
-    console.log(userExists)
     // Hash the new user password
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     newUser.password = hashedPassword;
@@ -31,11 +30,9 @@ router.post('/register', validation.register, async (req, res) => {
 
 router.post('/login', validation.signin, async (req, res) => {
     //Verify that the user exists
-    const userExists = await Users.hasUser({ userName: req.body.userName, email: req.body.email });
-    if (!userExists) return res.status(400).send({ success: false, message: "User does not exist" });
-
-    const user = await Users.getUser({ userName: req.body.userName, email: req.body.email }).then(data => data.user);
-
+    const userFound = await Users.getUser({ userName: req.body.userName, email: req.body.email })
+    if (!userFound.success) return res.status(400).send({ success: false, message: "User does not exist" });
+    const user = userFound.data[0];
     // Verify that the password is correct
     const validPassword = await bcrypt.compare(req.body.password, user.password);
     if (!validPassword) return res.status(400).send({ success: false, message: "Invalid password." });

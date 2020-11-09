@@ -1,31 +1,24 @@
-const db = require('../Database');
-const { makeUpdateArray } = require('../utils');
+const Table = require('./Table');
 
 class Projects {
-
-    async createProject(newProject, creatorId) {
-        const result = await db.addRecord("projects", { ...newProject, creatorId })
-            .then(async data => await this.addProjectCollaborator(data.insertId, creatorId))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-
-        return result;
+    constructor() {
+        this.table = new Table("projects");
     }
 
-    async getSingleProject(projectId) {
+    createProject(newProject, creatorId) {
+        return this.table.createEntry({ ...newProject, creatorId })
+    }
+
+    getSingleProject(projectId) {
         const columns = ["projects.id", "projects.name", "projects.description", "users.userName as creator"];
         const joinOptions = {
             joinTable: "users",
             joinColumns: "projects.creatorId = users.id"
         }
-
-        const result = await db.query("projects", columns, `projects.id=${projectId}`, "*", joinOptions)
-            .then(data => ({ success: data.length > 0 ? true : false, project: data[0] }))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-
-        return result;
+        return this.table.getEntrys(columns, `projects.id=${projectId}`, joinOptions);
     }
 
-    async getProjectsByUserId(userId) {
+    getProjectsByUserId(userId) {
         const columns = ["projects.id", "projects.name", "projects.description", "users.userName as creator"];
         const joinOptions = [{
             joinTable: "users",
@@ -34,27 +27,15 @@ class Projects {
             joinTable: "project_collaborators pc",
             joinColumns: "pc.projectId = projects.id"
         }];
-
-        const result = await db.query("projects", columns, `pc.collaboratorId=${userId}`, "*", joinOptions)
-            .then(data => ({ success: data.length > 0 ? true : false, projects: data }))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-
-        return result;
+        return this.table.getEntrys(columns, `pc.collaboratorId=${userId}`, joinOptions);
     }
 
-    async updateProject(projectId, updateObject) {
-        const result = await db.updateRecords("projects", makeUpdateArray(updateObject), `id=${projectId}`)
-            .then(data => ({ success: data.changedRows ? true : false }))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-
-        return result;
+    updateProject(projectId, updateObject) {
+        return this.table.updateEntrys(`id=${projectId}`, updateObject);
     }
 
-    async removeProject(projectId) {
-        const projectDeleted = await db.removeRecords("projects", `id=${projectId}`)
-            .then(data => ({ success: data.affectedRows ? true : false }))
-            .catch(err => ({ success: false, message: err.sqlMessage }));
-        return projectDeleted;
+    removeProject(projectId) {
+        return this.table.removeEntrys(`id=${projectId}`);
     }
 
 }
