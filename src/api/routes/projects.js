@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Projects, Users, Collaborators } = require('../database/models');
+const { Projects, Users, Collaborators } = require('../../database/models');
 const authorizeJWT = require('../middlewares/authorization');
 
 const issueRouter = require('./issues');

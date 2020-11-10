@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Issues } = require('../database/models');
+const { Issues } = require('../../database/models');
 const authorizeJWT = require('../middlewares/authorization');
 
 router.post('/new', authorizeJWT, async (req, res) => {

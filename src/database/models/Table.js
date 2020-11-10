@@ -23,7 +23,7 @@ class Table {
 
     async createEntry(newEntry) {
         const result = await db.addRecord(this.tableName, newEntry)
-            .then(data => ({ success: true, insertId: data.insertId }))
+            .then(data => ({ success: true, id: data.insertId }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return result;
     }
