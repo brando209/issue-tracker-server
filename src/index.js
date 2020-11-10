@@ -1,8 +1,6 @@
 const express = require('express');
 const logger = require('morgan');
-const path = require('path');
 const cors = require('cors');
-var dotenv = require('dotenv');
 
 const authRouter = require('./api/routes/authentication');
 const userRouter = require('./api/routes/user');
@@ -11,7 +9,6 @@ const projectRouter = require('./api/routes/projects');
 const API_PORT = 3001;
 
 const app = express();
-dotenv.config({ path: path.join(__dirname, '/.env') });
 
 // middlewares
 app.use((req, res, next) => {

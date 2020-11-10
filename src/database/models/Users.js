@@ -17,12 +17,12 @@ class Users {
         return this.table.getEntry(["id", "firstName", "lastName", "userName", "email"], `id='${userId}'`);
     }
 
-    removeUser(user) {
-        return this.table.removeEntrys(`id=${user.id}`);
+    removeUser(userId) {
+        return this.table.removeEntrys(`id=${userId}`);
     }
 
-    updateUser(user, updateObject) {
-        return this.table.updateEntrys(`id=${user.id}`, updateObject);
+    updateUser(userId, updateObject) {
+        return this.table.updateEntrys(`id=${userId}`, updateObject);
     }
 }
 
