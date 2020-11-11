@@ -1,10 +1,15 @@
+const bcrypt = require('bcryptjs');
 const config = require('../config');
 const { Users } = require('../database/models');
 
 class UserService {
 
     async changePassword(userId, password) {
-
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const update = { password: hashedPassword };
+        const passwordChanged = await Users.updateUser(userId, update);
+        if(!passwordChanged.success) throw new Error("Unable to update user password");
+        return passwordChanged;
     }
 
     async changeAccountDetails(userId, newDetails) {

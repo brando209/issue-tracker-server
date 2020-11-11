@@ -22,4 +22,14 @@ router.patch('/', authorizeJWT, async (req, res) => {
     }
 });
 
+router.patch('/changePassword', authorizeJWT, async (req, res) => {
+    try {
+        await UserService.changePassword(req.user.id, req.body.password);
+        return res.status(200).send({ message: "Password update successful", success: true });
+    } catch(err) {
+        console.log(err);
+        return res.status(400).send({ success: false, message: "Password not updated", error: err });
+    }
+});
+
 module.exports = router;
