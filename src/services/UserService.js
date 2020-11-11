@@ -12,14 +12,16 @@ class UserService {
         return passwordChanged;
     }
 
+    async getAccountDetails(userId) {
+        const userRecord = await Users.getUserById(userId);
+        if(!userRecord.success) throw new Error("Unable to retrieve user account details");
+        return userRecord.data;
+    }
+
     async changeAccountDetails(userId, newDetails) {
         const detailsChanged = await Users.updateUser(userId, newDetails);
         if(!detailsChanged.success) throw new Error("Unable to update user account details");
-
-        const userRecord = await Users.getUserById(userId);
-        if(!userRecord.success) throw new Error("Unable to retrieve updated user account details");
-
-        return userRecord.data;
+        return this.getAccountDetails(userId);
     }
 
     async deleteAccount(userId) {
