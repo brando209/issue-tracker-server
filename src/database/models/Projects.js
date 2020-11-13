@@ -15,7 +15,7 @@ class Projects {
             joinTable: "users",
             joinColumns: "projects.creatorId = users.id"
         }
-        return this.table.getEntrys(columns, `projects.id=${projectId}`, joinOptions);
+        return this.table.getEntry(columns, `projects.id=${projectId}`, joinOptions);
     }
 
     getProjectsByUserId(userId) {
