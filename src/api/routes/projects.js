@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-const { Projects, Users, Collaborators } = require('../../database/models');
 const ProjectService = require('../../services/ProjectService');
 const authorizeJWT = require('../middlewares/authorization');
 
@@ -55,7 +54,7 @@ router.get('/:projectId/collaborators', async (req, res) => {
 
 router.post('/:projectId/collaborators', async (req, res) => {
     try {
-        await ProjectService.addCollaborator(req.params.projectId, req.body);
+        await ProjectService.addCollaborator(req.params.projectId, req.body.collaboratorId);
         return res.status(200).send({ success: true, message: "Collaborator successfully added to project" });
     } catch (err) {
         return res.status(400).send({ success: false, message: err.message });
@@ -64,7 +63,7 @@ router.post('/:projectId/collaborators', async (req, res) => {
 
 router.delete('/:projectId/collaborators', async (req, res) => {
     try {
-        await ProjectService.addCollaborator(req.params.projectId, req.body);
+        await ProjectService.removeCollaborator(req.params.projectId, req.body.collaboratorId);
         return res.status(200).send({ success: true, message: "Collaborator successfully removed from project" });
     } catch (err) {
         return res.status(400).send({ success: false, message: err.message });
