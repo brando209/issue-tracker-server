@@ -25,6 +25,15 @@ router.get('/', authorizeJWT, async (req, res) => {
     }
 });
 
+router.get('/:projectId', authorizeJWT, async (req, res) => {
+    try {
+        const project = await ProjectService.getProject(req.params.projectId);
+        return res.status(200).send({success: true, message: "Project successfully retrieved", project });
+    } catch(err) {
+        return res.status(400).send({ success: false, message: err.message });
+    }
+});
+
 router.patch('/:projectId', authorizeJWT, async (req, res) => {
     try {
         const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body);
