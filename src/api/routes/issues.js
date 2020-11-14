@@ -2,41 +2,57 @@ const express = require('express');
 const router = express.Router();
 
 const { Issues } = require('../../database/models');
+const IssueService = require('../../services/projects/IssueService');
 const authorizeJWT = require('../middlewares/authorization');
 
-router.post('/new', authorizeJWT, async (req, res) => {
+router.post('/', authorizeJWT, async (req, res) => {
     const projectId = res.locals.params.projectId;
-    const result = await Issues.createIssue(req.body, projectId, req.user.id);
-    if(!result.success) return res.status(400).send({ message: "Issue not created", ...result });
-    return res.status(200).send({ message: "Issue created successfully", ...result });
+    try {
+        const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
+        return res.status(200).send({ success: true, message: "Issue created successfully", issue });
+    } catch (err) {
+        return res.status(400).send({ success: false, message: err.message });
+    }
 });
 
-router.get('', authorizeJWT, async (req, res) => {
+router.get('/', authorizeJWT, async (req, res) => {
     const projectId = res.locals.params.projectId;
-    const result = await Issues.getAllIssues(projectId);
-    if(!result.success) return res.status(404).send({ message: "Issue(s) not found", ...result });
-    return res.status(200).send({ message: "Issue(s) retrieved successfully", ...result });
+    try {
+        const issues = await IssueService.getAllIssues(projectId);
+        return res.status(200).send({ success: true, message: "Issue(s) retrieved successfully", issues });
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err.message });
+    }
 });
 
 router.get('/:issueId', authorizeJWT, async (req, res) => {
     const projectId = res.locals.params.projectId;
-    const result = await Issues.getSingleIssue(projectId, req.params.issueId);
-    if(!result.success) return res.status(404).send({ message: "Issue not found", ...result });
-    return res.status(200).send({ message: "Issue retrieved successfully", ...result });
+    try {
+        const issue = await IssueService.getIssueDetails(projectId, req.params.issueId)
+        return res.status(200).send({ success: true, message: "Issue retrieved successfully", issue });
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err.message });
+    }
 });
 
 router.patch('/:issueId', authorizeJWT, async (req, res) => {
     const projectId = res.locals.params.projectId;
-    const result = await Issues.updateIssue(projectId, req.params.issueId, req.body);
-    if(!result.success)  return res.status(400).send({ message: "Issue not updated", ...result });
-    return res.status(200).send({ message: "Issue updated successfully", ...result });
+    try {
+        const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body);
+        return res.status(200).send({ success: true, message: "Issue updated successfully", issue: updateIssue });
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err.message });
+    }
 });
 
 router.delete('/:issueId', authorizeJWT, async (req, res) => {
     const projectId = res.locals.params.projectId;
-    const result = await Issues.removeIssue(projectId, req.params.issueId);
-    if(!result.success)  return res.status(400).send({ message: "Issue not deleted", ...result });
-    return res.status(200).send({ message: "Issue deleted successfully", ...result });
+    try {
+        await IssueService.removeIssue(projectId, req.params.issueId);
+        return res.status(200).send({ success: true, message: "Issue removed successfully" });
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err.message });
+    }
 });
 
 module.exports = router;
