@@ -1,5 +1,4 @@
-const { Projects, Issues, Collaborators } = require('../database/models');
-const { report } = require('../api/routes/issues');
+const { Projects, Issues, Collaborators } = require('../../database/models');
 
 class ProjectService {
 
@@ -61,16 +60,6 @@ class ProjectService {
         const collaborators = await Collaborators.getAllProjectCollaborators(projectId);
         if (!collaborators.success) throw new Error("Unable to retrieve project collaborators");
         return collaborators.data;
-    }
-
-    async assignIssue(projectId, issueId, userId) {
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId });
-        if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
-        return issueAssigned.data;
-    }
-
-    async advanceIssue(projectId, issueId) {
-
     }
 
 }

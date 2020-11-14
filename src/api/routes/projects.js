@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const ProjectService = require('../../services/ProjectService');
+const ProjectService = require('../../services/projects/ProjectService');
 const authorizeJWT = require('../middlewares/authorization');
 
 const issueRouter = require('./issues');
