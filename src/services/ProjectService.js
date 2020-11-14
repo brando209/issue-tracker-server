@@ -1,5 +1,5 @@
-const { Projects, Users, Collaborators } = require('../database/models');
-const Issues = require('../database/models/Issues');
+const { Projects, Issues, Collaborators } = require('../database/models');
+const { report } = require('../api/routes/issues');
 
 class ProjectService {
 
@@ -16,21 +16,34 @@ class ProjectService {
         return projectRecord.data;
     }
 
+    async getProject(projectId) {
+        const projectRecord = await this.getProjectDetails(projectId);
+        const issues = await Issues.getAllIssues(projectId);
+        return { ...projectRecord, issues };
+    }
+
     async getProjectsByUser(userId) {
         const projectRecords = await Projects.getProjectsByUserId(userId);
         if (!projectRecords.success) throw new Error("Unable to retrieve project record(s)");
-        return projectRecords.data;
+
+        const projects = [];
+        for(let i = 0; i < projectRecords.data.length; i++) {
+            const issues = await Issues.getAllIssues(projectRecords.data[i].id);
+            projects.push({ ...projectRecords.data[i], issues });
+        }
+
+        return projects;
     }
 
     async changeProjectDetails(projectId, newDetails) {
         const projectChanged = await Projects.updateProject(projectId, newDetails);
-        if(!projectChanged.success) throw new Error("Unable to update project information");
+        if (!projectChanged.success) throw new Error("Unable to update project information");
         return this.getProjectDetails(projectId);
     }
 
     async removeProject(projectId) {
         const projectRemoved = await Projects.removeProject(projectId);
-        if(!projectRemoved.success) throw new Error("Unable to remove project record");
+        if (!projectRemoved.success) throw new Error("Unable to remove project record");
         return projectRemoved.data;
     }
 
@@ -46,17 +59,19 @@ class ProjectService {
 
     async getCollaborators(projectId) {
         const collaborators = await Collaborators.getAllProjectCollaborators(projectId);
-        if(!collaborators.success) throw new Error("Unable to retrieve project collaborators");
+        if (!collaborators.success) throw new Error("Unable to retrieve project collaborators");
         return collaborators.data;
     }
 
     async assignIssue(projectId, issueId, userId) {
         const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId });
-        if(!issueAssigned.success) throw new Error("Unable to assign issue to user");
+        if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         return issueAssigned.data;
     }
 
+    async advanceIssue(projectId, issueId) {
 
+    }
 
 }
 
