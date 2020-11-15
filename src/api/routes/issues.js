@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-const { Issues } = require('../../database/models');
 const IssueService = require('../../services/projects/IssueService');
 const authorizeJWT = require('../middlewares/authorization');
 

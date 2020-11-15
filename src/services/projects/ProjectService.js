@@ -1,4 +1,5 @@
-const { Projects, Issues, Collaborators } = require('../../database/models');
+const { Projects, Collaborators } = require('../../database/models');
+const IssueService = require('./IssueService');
 
 class ProjectService {
 
@@ -17,7 +18,7 @@ class ProjectService {
 
     async getProject(projectId) {
         const projectRecord = await this.getProjectDetails(projectId);
-        const issues = await Issues.getAllIssues(projectId);
+        const issues = await IssueService.getAllIssues(projectId);
         return { ...projectRecord, issues };
     }
 
@@ -27,7 +28,7 @@ class ProjectService {
 
         const projects = [];
         for(let i = 0; i < projectRecords.data.length; i++) {
-            const issues = await Issues.getAllIssues(projectRecords.data[i].id);
+            const issues = await IssueService.getAllIssues(projectRecords.data[i].id);
             projects.push({ ...projectRecords.data[i], issues });
         }
 

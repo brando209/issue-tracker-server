@@ -16,7 +16,7 @@ class Table {
 
     async getEntrys(columns, rows = "*", joins = null) {
         const result = await db.query(this.tableName, columns, rows, "*", joins)
-            .then(data => ({ success: data.length > 0 ? true : false, data }))
+            .then(data => ({ success: true, data }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return result;
     }
@@ -30,14 +30,14 @@ class Table {
 
     async updateEntrys(rows, updates) {
         const result = await db.updateRecords(this.tableName, makeUpdateArray(updates), rows)
-            .then(data => ({ success: data.changedRows ? true : false}))
+            .then(data => ({ success: true }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return result;
     }
 
     async removeEntrys(rows) {
         const result = await db.removeRecords(this.tableName, rows)
-            .then(data => ({ success: data.affectedRows ? true : false }))
+            .then(data => ({ success: true }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return result;
     }
