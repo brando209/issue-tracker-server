@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const AuthService = require('../../services/AuthService');
+const AuthService = require('../../services/user/AuthService');
 const validation = require('../middlewares/validation');
 
 router.post('/register', validation.register, async (req, res) => {

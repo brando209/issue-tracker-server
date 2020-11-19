@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
-const config = require('../config');
-const { Users } = require('../database/models');
+const config = require('../../config');
+const { Users } = require('../../database/models');
 
 class UserService {
 

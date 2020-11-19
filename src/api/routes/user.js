@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const UserService = require('../../services/UserService');
+const UserService = require('../../services/user/UserService');
 const authorizeJWT = require('../middlewares/authorization');
 
 router.get('/', authorizeJWT, async (req, res) => {
