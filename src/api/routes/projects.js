@@ -3,11 +3,12 @@ const router = express.Router();
 
 const ProjectService = require('../../services/projects/ProjectService');
 const authorizeJWT = require('../middlewares/authorization');
+const validation = require('../middlewares/validation');
 
 const issueRouter = require('./issues');
 const { passRouteParams } = require('./utils');
 
-router.post('/', authorizeJWT, async (req, res) => {
+router.post('/', authorizeJWT, validation.createProject, async (req, res) => {
     try {
         const project = await ProjectService.createProject(req.body, req.user.id);
         return res.status(200).send({ success: true, message: "Project successfully created", project });
@@ -34,7 +35,7 @@ router.get('/:projectId', authorizeJWT, async (req, res) => {
     }
 });
 
-router.patch('/:projectId', authorizeJWT, async (req, res) => {
+router.patch('/:projectId', authorizeJWT, validation.changeProject, async (req, res) => {
     try {
         const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body);
         return res.status(200).send({success: true, message: "Project successfully updated", project: updatedProject });
