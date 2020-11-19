@@ -33,9 +33,22 @@ class IssueService {
     }
 
     async assignIssue(projectId, issueId, userId) {
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId });
+        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "assigned" });
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         return issueAssigned.data;
+    }
+
+    async advanceIssue(projectId, issueId, userId, status) {
+        const issueRecord = await Issues.getSingleIssue(projectId, issueId);
+        if(!issueRecord.success) throw new Error(issueRecord.message);
+        
+        const issue = issueRecord.data;
+        if(issue.assineeId !== userId && issue.creatorId !== userId) throw new Error("User not allowed to advance issue");
+
+        const issueUpdate = await Issues.updateIssue(projectId, issueId, { status: status });
+        if(!issueUpdate.success) throw new Error("Unable to advance issue status");
+
+        return issueUpdate.data;
     }
 
 }

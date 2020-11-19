@@ -34,6 +34,27 @@ router.get('/:issueId', authorizeJWT, async (req, res) => {
     }
 });
 
+router.patch('/:issueId/assign', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    try {
+        const issue = await IssueService.assignIssue(projectId, req.params.issueId, req.query.userId);
+        return res.status(200).send({ success: true, message: "Issue successfully assigned to user", issue });
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err.message });
+    }
+
+});
+
+router.patch('/:issueId/advance', authorizeJWT, async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    try {
+        const issue = await IssueService.advanceIssue(projectId, req.params.issueId, req.user.id, req.query.status);
+        return res.status(200).send({ success: true, message: "Issue advanced successfully", issue: issue });
+    } catch (err) {
+        return res.status(404).send({ success: false, message: err.message });
+    }
+});
+
 router.patch('/:issueId', authorizeJWT, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
