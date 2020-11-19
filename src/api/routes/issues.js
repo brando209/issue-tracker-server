@@ -2,10 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 const IssueService = require('../../services/projects/IssueService');
-const authorizeJWT = require('../middlewares/authorization');
+const authorization = require('../middlewares/authorization');
 const validation = require('../middlewares/validation');
 
-router.post('/', authorizeJWT, validation.createIssue, async (req, res) => {
+router.use(authorization.authorizeJWT);
+
+router.post('/', validation.createIssue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
@@ -15,7 +17,7 @@ router.post('/', authorizeJWT, validation.createIssue, async (req, res) => {
     }
 });
 
-router.get('/', authorizeJWT, async (req, res) => {
+router.get('/', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issues = await IssueService.getAllIssues(projectId);
@@ -25,7 +27,7 @@ router.get('/', authorizeJWT, async (req, res) => {
     }
 });
 
-router.get('/:issueId', authorizeJWT, async (req, res) => {
+router.get('/:issueId', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issue = await IssueService.getIssueDetails(projectId, req.params.issueId)
@@ -46,7 +48,7 @@ router.patch('/:issueId/assign', async (req, res) => {
 
 });
 
-router.patch('/:issueId/advance', authorizeJWT, async (req, res) => {
+router.patch('/:issueId/advance', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issue = await IssueService.advanceIssue(projectId, req.params.issueId, req.user.id, req.query.status);
@@ -56,7 +58,7 @@ router.patch('/:issueId/advance', authorizeJWT, async (req, res) => {
     }
 });
 
-router.patch('/:issueId', authorizeJWT, validation.changeIssue, async (req, res) => {
+router.patch('/:issueId', validation.changeIssue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body);
@@ -66,7 +68,7 @@ router.patch('/:issueId', authorizeJWT, validation.changeIssue, async (req, res)
     }
 });
 
-router.delete('/:issueId', authorizeJWT, async (req, res) => {
+router.delete('/:issueId', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         await IssueService.removeIssue(projectId, req.params.issueId);
