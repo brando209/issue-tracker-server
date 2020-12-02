@@ -14,8 +14,11 @@ class AuthService {
         const hashedPassword = await bcrypt.hash(user.password, 10);
         user.password = hashedPassword;
 
+        const newUser = user;
+        delete newUser.confirmPassword;
+
         //Add new user to database
-        const userCreated = await Users.createUser(user);
+        const userCreated = await Users.createUser(newUser);
         if (!userCreated.success) throw new Error("User not created")
 
         const userRecord = await Users.getUserById(userCreated.id);
