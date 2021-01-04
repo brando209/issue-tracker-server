@@ -13,72 +13,72 @@ router.use(authorization.authorizeJWT);
 router.post('/', validation.createProject, async (req, res) => {
     try {
         const project = await ProjectService.createProject(req.body, req.user.id);
-        return res.status(200).send({ success: true, message: "Project successfully created", project });
+        return res.status(200).send(project);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.get('/', async (req, res) => {
     try {
         const projects = await ProjectService.getProjectsByUser(req.user.id);
-        return res.status(200).send({success: true, message: "Project(s) successfully retrieved", projects });
+        return res.status(200).send(projects);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
-});
+})
 
 router.get('/:projectId', async (req, res) => {
     try {
         const project = await ProjectService.getProject(req.params.projectId);
-        return res.status(200).send({success: true, message: "Project successfully retrieved", project });
+        return res.status(200).send(project);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.patch('/:projectId', validation.changeProject, async (req, res) => {
     try {
         const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body);
-        return res.status(200).send({success: true, message: "Project successfully updated", project: updatedProject });
+        return res.status(200).send(updatedProject);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.delete('/:projectId', async (req, res) => {
     try {
         await ProjectService.removeProject(req.params.projectId);
-        return res.status(200).send({success: true, message: "Project successfully removed" });
+        return res.sendStatus(200);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.get('/:projectId/collaborators', async (req, res) => {
     try {
         const collaborators = await ProjectService.getCollaborators(req.params.projectId);
-        return res.status(200).send({success: true, message: "Project collaborators successfully retrieved", collaborators });
+        return res.status(200).send(collaborators);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.post('/:projectId/collaborators', async (req, res) => {
     try {
         await ProjectService.addCollaborator(req.params.projectId, req.body.collaboratorId);
-        return res.status(200).send({ success: true, message: "Collaborator successfully added to project" });
+        return res.sendStatus(200);
     } catch (err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.delete('/:projectId/collaborators', async (req, res) => {
     try {
         await ProjectService.removeCollaborator(req.params.projectId, req.body.collaboratorId);
-        return res.status(200).send({ success: true, message: "Collaborator successfully removed from project" });
+        return res.sedStatus(200);
     } catch (err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 

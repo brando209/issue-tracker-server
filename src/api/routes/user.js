@@ -9,45 +9,54 @@ router.use(authorization.authorizeJWT);
 router.get('/', async (req, res) => {
     try {
         const userRecord = await UserService.getAccountDetails(req.user.id);
-        return res.status(200).send({ success: true, message: "User retrieved", user: userRecord });
+        return res.status(200).send(userRecord);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.delete('/', async (req, res) => {
     try {
         await UserService.deleteAccount(req.user.id);
-        return res.status(200).send({ success: true, message: "User deleted"});
+        return res.sendStatus(200);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.patch('/', async (req, res) => {
     try {
         const updatedUser = await UserService.changeAccountDetails(req.user.id, req.body);
-        return res.status(200).send({ success: true, message: "User update successful", user: updatedUser });
+        return res.status(200).send(updatedUser);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
 router.patch('/changePassword', async (req, res) => {
     try {
         await UserService.changePassword(req.user.id, req.body.password);
-        return res.status(200).send({ success: true, message: "Password update successful" });
+        return res.sendStatus(200);
     } catch(err) {
-        return res.status(400).send({ success: false, message: "Password not updated" });
+        return res.status(400).send({ error: true, message: "Password not updated" });
     }
 });
 
 router.get('/login', authorization.authorizeJWT, async (req, res) => {
     try {
         const userRecord = await UserService.getAccountDetails(req.user.id);
-        return res.status(200).send({ success: true, message: "User account retrieved", user: userRecord });
+        return res.status(200).send(userRecord);
     } catch(err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
+router.get('/all', async (req, res) => {
+    try {
+        const users = await UserService.getAllAccountDetails();
+        return res.status(200).send(users);
+    } catch(err) {
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 

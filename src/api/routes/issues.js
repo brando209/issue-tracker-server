@@ -11,9 +11,9 @@ router.post('/', validation.createIssue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
-        return res.status(200).send({ success: true, message: "Issue created successfully", issue });
+        return res.status(200).send(issue);
     } catch (err) {
-        return res.status(400).send({ success: false, message: err.message });
+        return res.status(400).send({ error: true, message: err.message });
     }
 });
 
@@ -21,9 +21,9 @@ router.get('/', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issues = await IssueService.getAllIssues(projectId);
-        return res.status(200).send({ success: true, message: "Issue(s) retrieved successfully", issues });
+        return res.status(200).send(issues);
     } catch (err) {
-        return res.status(404).send({ success: false, message: err.message });
+        return res.status(404).send({ error: true, message: err.message });
     }
 });
 
@@ -31,30 +31,29 @@ router.get('/:issueId', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issue = await IssueService.getIssueDetails(projectId, req.params.issueId)
-        return res.status(200).send({ success: true, message: "Issue retrieved successfully", issue });
+        return res.status(200).send(issue);
     } catch (err) {
-        return res.status(404).send({ success: false, message: err.message });
+        return res.status(404).send({ error: true, message: err.message });
     }
 });
 
 router.patch('/:issueId/assign', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        const issue = await IssueService.assignIssue(projectId, req.params.issueId, req.query.userId);
-        return res.status(200).send({ success: true, message: "Issue successfully assigned to user", issue });
+        const issue = await IssueService.assignIssue(projectId, req.params.issueId, req.body.assigneeId);
+        return res.status(200).send(issue);
     } catch (err) {
-        return res.status(404).send({ success: false, message: err.message });
+        return res.status(404).send({ error: true, message: err.message });
     }
-
 });
 
 router.patch('/:issueId/advance', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        const issue = await IssueService.advanceIssue(projectId, req.params.issueId, req.user.id, req.query.status);
-        return res.status(200).send({ success: true, message: "Issue advanced successfully", issue: issue });
+        const issue = await IssueService.advanceIssue(projectId, req.params.issueId, req.user.id, req.body.status);
+        return res.status(200).send(issue);
     } catch (err) {
-        return res.status(404).send({ success: false, message: err.message });
+        return res.status(404).send({ error: true, message: err.message });
     }
 });
 
@@ -62,9 +61,9 @@ router.patch('/:issueId', validation.changeIssue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body);
-        return res.status(200).send({ success: true, message: "Issue updated successfully", issue: updateIssue });
+        return res.status(200).send(updateIssue);
     } catch (err) {
-        return res.status(404).send({ success: false, message: err.message });
+        return res.status(404).send({ error: true, message: err.message });
     }
 });
 
@@ -72,9 +71,9 @@ router.delete('/:issueId', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         await IssueService.removeIssue(projectId, req.params.issueId);
-        return res.status(200).send({ success: true, message: "Issue removed successfully" });
+        return res.sendStatus(200);
     } catch (err) {
-        return res.status(404).send({ success: false, message: err.message });
+        return res.status(404).send({ error: true, message: err.message });
     }
 });
 
