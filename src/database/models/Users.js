@@ -17,6 +17,10 @@ class Users {
         return this.table.getEntry(["id", "firstName", "lastName", "userName", "email"], `id='${userId}'`);
     }
 
+    getAllUsers() {
+        return this.table.getEntrys("*");
+    }
+
     removeUser(userId) {
         return this.table.removeEntrys(`id=${userId}`);
     }

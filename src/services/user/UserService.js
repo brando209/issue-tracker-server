@@ -18,6 +18,12 @@ class UserService {
         return userRecord.data;
     }
 
+    async getAllAccountDetails() {
+        const users = await Users.getAllUsers();
+        if(!users.success) throw new Error("Unable to retrieve user account details");
+        return users.data;
+    }
+
     async changeAccountDetails(userId, newDetails) {
         const detailsChanged = await Users.updateUser(userId, newDetails);
         if(!detailsChanged.success) throw new Error("Unable to update user account details");
