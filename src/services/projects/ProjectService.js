@@ -42,6 +42,9 @@ class ProjectService {
     }
 
     async removeProject(projectId) {
+        //Never delete this record from the database
+        if(projectId === 18) throw new Error("Unable to delete this project (Issue Tracker)");
+
         const projectRemoved = await Projects.removeProject(projectId);
         if (!projectRemoved.success) throw new Error("Unable to remove project record");
         return projectRemoved.data;

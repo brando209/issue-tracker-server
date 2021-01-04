@@ -18,7 +18,11 @@ class Collaborators {
     }
 
     async getAllProjectCollaborators(projectId) {
-        return this.table.getEntrys("collaboratorId", `projectId=${projectId}`);
+        const joinOptions = {
+            joinTable: "users u",
+            joinColumns: "u.id = project_collaborators.collaboratorId"
+        }
+        return this.table.getEntrys("u.*", `projectId=${projectId}`, joinOptions);
     }
 
 }

@@ -33,7 +33,7 @@ class IssueService {
     }
 
     async assignIssue(projectId, issueId, userId) {
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "assigned" });
+        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open" });
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         return issueAssigned.data;
     }
