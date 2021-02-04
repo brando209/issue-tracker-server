@@ -49,10 +49,12 @@ router.patch('/:issueId/assign', async (req, res) => {
 
 router.patch('/:issueId/advance', async (req, res) => {
     const projectId = res.locals.params.projectId;
+    console.log(req.body);
     try {
         const issue = await IssueService.advanceIssue(projectId, req.params.issueId, req.user.id, req.body.status);
         return res.status(200).send(issue);
     } catch (err) {
+        console.log(err);
         return res.status(404).send({ error: true, message: err.message });
     }
 });

@@ -1,5 +1,5 @@
 const { Projects, Issues, Collaborators } = require('../../database/models');
-
+const { currentDatetime } = require('../utils');
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
@@ -33,7 +33,7 @@ class IssueService {
     }
 
     async assignIssue(projectId, issueId, userId) {
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open" });
+        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open", opened_at: currentDatetime() });
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         return issueAssigned.data;
     }
@@ -44,9 +44,12 @@ class IssueService {
         
         const issue = issueRecord.data;
         if(issue.assineeId !== userId && issue.creatorId !== userId) throw new Error("User not allowed to advance issue");
-
-        const issueUpdate = await Issues.updateIssue(projectId, issueId, { status: status });
-        if(!issueUpdate.success) throw new Error("Unable to advance issue status");
+        
+        const update = { status: status };
+        (status === "inprogress") ? update.started_at = currentDatetime() : update.closed_at = currentDatetime();
+        
+        const issueUpdate = await Issues.updateIssue(projectId, issueId, update);
+        if(!issueUpdate.success) throw new Error("Unable to advance issue");
 
         return issueUpdate.data;
     }
