@@ -1,4 +1,4 @@
-const { Projects, Issues, Collaborators } = require('../../database/models');
+const { Projects, Issues, Comments } = require('../../database/models');
 const { currentDatetime } = require('../utils');
 class IssueService {
 
@@ -54,6 +54,27 @@ class IssueService {
         return issueUpdate.data;
     }
 
+    async addComment(projectId, issueId, userId, commentBody) {
+        const added = await Comments.addComment(projectId, issueId, userId, commentBody);
+        if(!added.success) throw new Error("Unable to add new comment");
+        const comment = await Comments.getComment(projectId, issueId, added.id);
+        return comment.data;
+    }
+
+    async removeComment(projectId, issueId, commentId) {
+        const comment = await Comments.removeComment(projectId, issueId, commentId);
+        return comment.data;
+    }
+
+    async getComment(projectId, issueId, commentId) {
+        const comment = await Comments.getComment(projectId, issueId, commentId);
+        return comment.data;
+    }
+
+    async getIssueComments(projectId, issueId) {
+        const comment = await Comments.getAllIssueComments(projectId, issueId);
+        return comment.data;
+    }
 }
 
 module.exports = new IssueService;

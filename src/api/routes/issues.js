@@ -79,4 +79,25 @@ router.delete('/:issueId', async (req, res) => {
     }
 });
 
+router.get('/:issueId/comments', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    try {
+        const comments = await IssueService.getIssueComments(projectId, req.params.issueId);
+        return res.status(200).send(comments);
+    } catch (err) {
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
+router.post('/:issueId/comments', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    try {
+        const comment = await IssueService.addComment(projectId, req.params.issueId, req.user.id, req.body.comment);
+        return res.send(comment);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
 module.exports = router;
