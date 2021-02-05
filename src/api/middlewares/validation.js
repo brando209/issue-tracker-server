@@ -36,8 +36,8 @@ const signin = (req, res, next) => {
 
 const createProject = (req, res, next) => {
     const validationRule = {
-        "name": "required|string|min:3|max:20",
-        "description": "required|string|min:3|max:255"
+        "name": "required|string|min:3|max:30",
+        "description": "required|string|min:3|max:512"
     }
 
     validator(req.body, validationRule, {}, (err, status) => {
@@ -51,8 +51,8 @@ const createProject = (req, res, next) => {
 
 const changeProject = (req, res, next) => {
     const validationRule = {
-        "name": "sometimes|string|min:3|max:20",
-        "description": "sometimes|string|min:3|max:255"
+        "name": "sometimes|string|min:3|max:30",
+        "description": "sometimes|string|min:3|max:512"
     }
 
     validator(req.body, validationRule, {}, (err, status) => {
@@ -66,8 +66,8 @@ const changeProject = (req, res, next) => {
 
 const createIssue = (req, res, next) => {
     const validationRule = {
-        "title": "required|string|min:3|max:20",
-        "description": "required|string|min:3|max:255",
+        "title": "required|string|min:3|max:30",
+        "description": "required|string|min:3|max:512",
         "category": "sometimes|in:bug,feature,task,other",
         "priority": "sometimes|in:trivial,low,regular,high,critical"
     }
@@ -83,8 +83,8 @@ const createIssue = (req, res, next) => {
 
 const changeIssue = (req, res, next) => {
     const validationRule = {
-        "title": "sometimes|string|min:3|max:20",
-        "description": "sometimes|string|min:3|max:255",
+        "title": "sometimes|string|min:3|max:30",
+        "description": "sometimes|string|min:3|max:512",
         "category": "sometimes|in:bug,feature,task,other",
         "priority": "sometimes|in:trivial,low,regular,high,critical"
     }
