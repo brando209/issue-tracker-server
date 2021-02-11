@@ -20,11 +20,9 @@ class Issue {
 
     updateIssue(projectId, issueId, updateObject) {
         const result = this.table.updateEntrys( `id=${issueId}`, updateObject)
-    
         if(result.success) {
-            return this.getSingleIssue(projectId, issueId);
+            return this.table.getEntry("*", `id=${issueId}`);
         }
-
         return result;
     }
 

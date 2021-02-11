@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 router.get('/:issueId', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        const issue = await IssueService.getIssueDetails(projectId, req.params.issueId)
+        const issue = await IssueService.getIssueDetails(projectId, req.params.issueId);
         return res.status(200).send(issue);
     } catch (err) {
         return res.status(404).send({ error: true, message: err.message });

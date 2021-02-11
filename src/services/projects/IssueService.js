@@ -35,11 +35,13 @@ class IssueService {
     async assignIssue(projectId, issueId, userId) {
         const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open", opened_at: currentDatetime() });
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
-        return issueAssigned.data;
+        
+        const issue = await Issues.getSingleIssue(projectId, issueId);
+        return issue.data;
     }
 
     async advanceIssue(projectId, issueId, userId, status) {
-        const issueRecord = await Issues.getSingleIssue(projectId, issueId);
+        let issueRecord = await Issues.getSingleIssue(projectId, issueId);
         if(!issueRecord.success) throw new Error(issueRecord.message);
         
         const issue = issueRecord.data;
@@ -48,10 +50,12 @@ class IssueService {
         const update = { status: status };
         (status === "inprogress") ? update.started_at = currentDatetime() : update.closed_at = currentDatetime();
         
-        const issueUpdate = await Issues.updateIssue(projectId, issueId, update);
-        if(!issueUpdate.success) throw new Error("Unable to advance issue");
+        const issueUpdated = await Issues.updateIssue(projectId, issueId, update);
+        if(!issueUpdated.success) throw new Error("Unable to advance issue");
 
-        return issueUpdate.data;
+        issueRecord = await Issues.getSingleIssue(projectId, issueId);
+
+        return issueRecord.data;
     }
 
     async addComment(projectId, issueId, userId, commentBody) {
