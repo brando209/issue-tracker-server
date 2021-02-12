@@ -10,7 +10,7 @@ const { passRouteParams } = require('./utils');
 
 router.use(authorization.authorizeJWT);
 
-router.post('/', validation.createProject, async (req, res) => {
+router.post('/', validation.project, async (req, res) => {
     try {
         const project = await ProjectService.createProject(req.body, req.user.id);
         return res.status(200).send(project);
@@ -37,7 +37,7 @@ router.get('/:projectId', async (req, res) => {
     }
 });
 
-router.patch('/:projectId', validation.changeProject, async (req, res) => {
+router.patch('/:projectId', validation.project, async (req, res) => {
     try {
         const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body);
         return res.status(200).send(updatedProject);

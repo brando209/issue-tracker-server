@@ -7,7 +7,7 @@ const validation = require('../middlewares/validation');
 
 router.use(authorization.authorizeJWT);
 
-router.post('/', validation.createIssue, async (req, res) => {
+router.post('/', validation.issue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
@@ -59,7 +59,7 @@ router.patch('/:issueId/advance', async (req, res) => {
     }
 });
 
-router.patch('/:issueId', validation.changeIssue, async (req, res) => {
+router.patch('/:issueId', validation.issue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body);
