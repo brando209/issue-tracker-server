@@ -18,6 +18,15 @@ class Comments {
         return this.table.getEntry("*", [`issueId='${issueId}' AND id='${commentId}'`]);
     }
 
+    async editComment(projectId, issueId, commentId, comment, editedAt) {
+        const updateObject = { body: comment.body, edited_at: editedAt }
+        const result = await this.table.updateEntrys( `issueId=${issueId} AND id=${commentId}`, updateObject);
+        if(result.success) {
+            return this.table.getEntry("*", `id=${commentId}`);
+        }
+        return result;
+    }
+
     async getAllIssueComments(projectId, issueId) {
         return this.table.getEntrys("*", `issueId=${issueId}`);
     }

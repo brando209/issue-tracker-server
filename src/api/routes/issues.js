@@ -59,7 +59,7 @@ router.patch('/:issueId/advance', async (req, res) => {
     }
 });
 
-router.patch('/:issueId', validation.issue, async (req, res) => {
+router.patch('/:issueId', validation.editIssue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body);
@@ -93,6 +93,36 @@ router.post('/:issueId/comments', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const comment = await IssueService.addComment(projectId, req.params.issueId, req.user.id, req.body.comment);
+        return res.send(comment);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
+router.delete('/:issueId/comments/:commentId', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    try {
+        const comment = await IssueService.removeComment(projectId, req.params.issueId, req.params.commentId);
+        return res.send(comment);
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
+router.patch('/:issueId/comments/:commentId', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    const comment = req.body.comment;
+    console.log(comment);
+    try {
+        const comment = await IssueService.editComment(
+            projectId, 
+            req.params.issueId, 
+            req.params.commentId, 
+            req.user.id,
+            req.body.comment
+        );
         return res.send(comment);
     } catch (err) {
         console.log(err);

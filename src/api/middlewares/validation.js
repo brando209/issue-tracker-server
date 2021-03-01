@@ -49,6 +49,21 @@ const project = (req, res, next) => {
     });
 }
 
+const editProject = (req, res, next) => {
+    const validationRule = {
+        "name": "sometimes|string|min:3|max:30",
+        "description": "sometimes|string|min:3|max:512"
+    }
+
+    validator(req.body, validationRule, {}, (err, status) => {
+        if (!status) {
+            res.status(412).send({ success: false, message: 'Validation failed', data: err });
+        } else {
+            next();
+        }
+    });
+}
+
 const issue = (req, res, next) => {
     const validationRule = {
         "title": "required|string|min:3|max:30",
@@ -66,6 +81,23 @@ const issue = (req, res, next) => {
     });
 }
 
+const editIssue = (req, res, next) => {
+    const validationRule = {
+        "title": "sometimes|string|min:3|max:30",
+        "description": "sometimes|string|min:3|max:512",
+        "category": "sometimes|in:bug,feature,task,other",
+        "priority": "sometimes|in:trivial,low,regular,high,critical"
+    }
+
+    validator(req.body, validationRule, {}, (err, status) => {
+        if (!status) {
+            res.status(412).send({ success: false, message: 'Validation failed', data: err });
+        } else {
+            next();
+        }
+    });
+}
+
 module.exports = { 
-  register, signin, project, issue
+  register, signin, project, editProject, issue, editIssue
 }

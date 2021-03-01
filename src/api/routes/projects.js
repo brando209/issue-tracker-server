@@ -37,7 +37,7 @@ router.get('/:projectId', async (req, res) => {
     }
 });
 
-router.patch('/:projectId', validation.project, async (req, res) => {
+router.patch('/:projectId', validation.editProject, async (req, res) => {
     try {
         const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body);
         return res.status(200).send(updatedProject);

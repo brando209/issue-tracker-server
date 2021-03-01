@@ -3,8 +3,12 @@ const { currentDatetime } = require('../utils');
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
-        const issueCreated = await Issues.createIssue(issue, projectId, creatorId);
+        let issueCreated = await Issues.createIssue(issue, projectId, creatorId);
         if (!issueCreated.success) throw new Error(issueCreated.message);
+        if (issue.assigneeId) {
+            console.log("This issue is being assigned on creation", issue);
+            issueCreated = await this.assignIssue(projectId, issueCreated.id, issue.assigneeId);
+        }
         return this.getIssueDetails(projectId, issueCreated.id);
     }
 
@@ -33,7 +37,8 @@ class IssueService {
     }
 
     async assignIssue(projectId, issueId, userId) {
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open", opened_at: currentDatetime() });
+        const currentTime = currentDatetime();
+        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open", opened_at: currentTime });
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         
         const issue = await Issues.getSingleIssue(projectId, issueId);
@@ -72,6 +77,16 @@ class IssueService {
 
     async getComment(projectId, issueId, commentId) {
         const comment = await Comments.getComment(projectId, issueId, commentId);
+        return comment.data;
+    }
+
+    async editComment(projectId, issueId, commentId, userId, update) {
+        let comment = await Comments.getComment(projectId, issueId, commentId);
+        if(!comment.success) throw new Error("Something went wrong, cannot update comment");
+        if(comment.data.creatorId !== userId) throw new Error("Cannot edit comment, not creator");
+
+        comment = await Comments.editComment(projectId, issueId, commentId, update, currentDatetime());
+        console.log("edited", comment);
         return comment.data;
     }
 
