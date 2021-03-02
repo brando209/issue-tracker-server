@@ -1,5 +1,4 @@
 const { Projects, Issues, Comments } = require('../../database/models');
-const { currentDatetime } = require('../utils');
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
@@ -37,8 +36,7 @@ class IssueService {
     }
 
     async assignIssue(projectId, issueId, userId) {
-        const currentTime = currentDatetime();
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open", opened_at: currentTime });
+        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open" });
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         
         const issue = await Issues.getSingleIssue(projectId, issueId);
@@ -52,10 +50,7 @@ class IssueService {
         const issue = issueRecord.data;
         if(issue.assineeId !== userId && issue.creatorId !== userId) throw new Error("User not allowed to advance issue");
         
-        const update = { status: status };
-        (status === "inprogress") ? update.started_at = currentDatetime() : update.closed_at = currentDatetime();
-        
-        const issueUpdated = await Issues.updateIssue(projectId, issueId, update);
+        const issueUpdated = await Issues.updateIssue(projectId, issueId, status);
         if(!issueUpdated.success) throw new Error("Unable to advance issue");
 
         issueRecord = await Issues.getSingleIssue(projectId, issueId);
@@ -85,7 +80,7 @@ class IssueService {
         if(!comment.success) throw new Error("Something went wrong, cannot update comment");
         if(comment.data.creatorId !== userId) throw new Error("Cannot edit comment, not creator");
 
-        comment = await Comments.editComment(projectId, issueId, commentId, update, currentDatetime());
+        comment = await Comments.editComment(projectId, issueId, commentId, update);
         console.log("edited", comment);
         return comment.data;
     }
