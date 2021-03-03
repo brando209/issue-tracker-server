@@ -37,6 +37,13 @@ class Database {
         })
     }
 
+    escapeValues(valueStringArray) {
+        return valueStringArray.map(val => {
+            if(Number.isInteger(Number(val))) return val;
+            return connection.escape(val);
+        });
+    }
+
     query(table, columns = "*" || [], rows = "*" || [], options = "*" || [], joinOptions = null) {
         rows = makeArray(rows);
         columns = makeArray(columns);
@@ -51,8 +58,8 @@ class Database {
 
     addRecord(table, record) {
         const keys = Object.keys(record);
-        const values = Object.values(record);
-        return this.runSqlQuery(`INSERT INTO ${table} (${keys.join(", ")}) VALUES ('${values.join("', '")}')`);
+        const values = this.escapeValues(Object.values(record));
+        return this.runSqlQuery(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${values.join(", ")})`);
     }
 
     removeRecords(table, rows) {
@@ -62,7 +69,21 @@ class Database {
     }
 
     updateRecords(table, columns, rows) {
-        columns = makeArray(columns);
+        // columns elements are strings of the form ( key='value' )
+        // This block will escape rhs, removing quotes first
+        columns = makeArray(columns).map(col => {
+            const parts = col.split("=");
+            const lhs = parts[0];
+            const rhs = this.escapeValues(
+                parts.map((part, idx) => {
+                    if(idx === 0) return "";
+                    return part.slice(1, part.length - 1);
+                }
+            ))
+            let res = lhs + "=";
+            rhs.forEach(val => res += val);
+            return res;
+        });
         rows = makeArray(rows);
         return this.runSqlQuery(`UPDATE ${table} SET ${columns.join(", ")} WHERE ${rows.join(" OR ")}`);
     }
