@@ -50,7 +50,7 @@ class IssueService {
         const issue = issueRecord.data;
         if(issue.assineeId !== userId && issue.creatorId !== userId) throw new Error("User not allowed to advance issue");
         
-        const issueUpdated = await Issues.updateIssue(projectId, issueId, status);
+        const issueUpdated = await Issues.updateIssue(projectId, issueId, { status: status });
         if(!issueUpdated.success) throw new Error("Unable to advance issue");
 
         issueRecord = await Issues.getSingleIssue(projectId, issueId);
