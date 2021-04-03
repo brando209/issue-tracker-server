@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const storage = multer({ dest: './uploads' });
 
 const IssueService = require('../../services/projects/IssueService');
 const authorization = require('../middlewares/authorization');
@@ -7,8 +9,9 @@ const validation = require('../middlewares/validation');
 
 router.use(authorization.authorizeJWT);
 
-router.post('/', validation.issue, async (req, res) => {
+router.post('/', storage.single('file-upload'), validation.issue, async (req, res) => {
     const projectId = res.locals.params.projectId;
+    console.log(req.file);
     try {
         const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
         return res.status(200).send(issue);

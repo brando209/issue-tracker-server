@@ -9,7 +9,9 @@ const register = (req, res, next) => {
         "password": "required|string|min:6",
     }
 
-    validator(req.body, validationRule, {}, (err, status) => {
+    const bodyObj = JSON.parse(JSON.stringify(req.body));
+
+    validator(bodyObj, validationRule, {}, (err, status) => {
         if (!status) {
             res.status(412).send({ success: false, message: 'Validation failed', data: err });
         } else {
@@ -25,7 +27,9 @@ const signin = (req, res, next) => {
         "password": "required|string|min:6",
     }
 
-    validator(req.body, validationRule, {}, (err, status) => {
+    const bodyObj = JSON.parse(JSON.stringify(req.body));
+
+    validator(bodyObj, validationRule, {}, (err, status) => {
         if (!status) {
             res.status(412).send({ success: false, message: 'Validation failed', data: err });
         } else {
@@ -40,7 +44,9 @@ const project = (req, res, next) => {
         "description": "required|string|min:3|max:512"
     }
 
-    validator(req.body, validationRule, {}, (err, status) => {
+    const bodyObj = JSON.parse(JSON.stringify(req.body));
+
+    validator(bodyObj, validationRule, {}, (err, status) => {
         if (!status) {
             res.status(412).send({ success: false, message: 'Validation failed', data: err });
         } else {
@@ -55,7 +61,9 @@ const editProject = (req, res, next) => {
         "description": "sometimes|string|min:3|max:512"
     }
 
-    validator(req.body, validationRule, {}, (err, status) => {
+    const bodyObj = JSON.parse(JSON.stringify(req.body));
+
+    validator(bodyObj, validationRule, {}, (err, status) => {
         if (!status) {
             res.status(412).send({ success: false, message: 'Validation failed', data: err });
         } else {
@@ -65,14 +73,16 @@ const editProject = (req, res, next) => {
 }
 
 const issue = (req, res, next) => {
-    const validationRule = {
+    const validationRule = {            
         "title": "required|string|min:3|max:30",
         "description": "required|string|min:3|max:512",
         "category": "sometimes|in:bug,feature,task,other",
         "priority": "sometimes|in:trivial,low,regular,high,critical"
     }
 
-    validator(req.body, validationRule, {}, (err, status) => {
+    const bodyObj = JSON.parse(JSON.stringify(req.body));
+
+    validator(bodyObj, validationRule, {}, (err, status) => {
         if (!status) {
             res.status(412).send({ success: false, message: 'Validation failed', data: err });
         } else {
@@ -89,7 +99,9 @@ const editIssue = (req, res, next) => {
         "priority": "sometimes|in:trivial,low,regular,high,critical"
     }
 
-    validator(req.body, validationRule, {}, (err, status) => {
+    const bodyObj = JSON.parse(JSON.stringify(req.body));
+
+    validator(bodyObj, validationRule, {}, (err, status) => {
         if (!status) {
             res.status(412).send({ success: false, message: 'Validation failed', data: err });
         } else {
