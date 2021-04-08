@@ -4,7 +4,9 @@ const Issues = require('./Issues');
 const Collaborators = require('./Collaborators');
 const Invites = require('./Invites');
 const Comments = require('./Comments');
+const Files = require('./Files');
+const IssueAttachments = require('./IssueAttachments');
 
 module.exports = {
-    Users, Projects, Issues, Collaborators, Invites, Comments
+    Users, Projects, Issues, Collaborators, Invites, Comments, Files, IssueAttachments
 }
