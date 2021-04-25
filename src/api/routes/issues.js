@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const storage = multer({ dest: './uploads' });
+const path = require("path")
+const fs = require("fs");
 
 const IssueService = require('../../services/projects/IssueService');
 const authorization = require('../middlewares/authorization');
@@ -9,9 +11,9 @@ const validation = require('../middlewares/validation');
 
 router.use(authorization.authorizeJWT);
 
-router.post('/', storage.single('file-upload'), validation.issue, async (req, res) => {
+router.post('/', validation.issue, async (req, res) => {
     const projectId = res.locals.params.projectId;
-    console.log(req.file);
+
     try {
         const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
         return res.status(200).send(issue);
@@ -24,6 +26,7 @@ router.get('/', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
         const issues = await IssueService.getAllIssues(projectId);
+        console.log(issues);
         return res.status(200).send(issues);
     } catch (err) {
         return res.status(404).send({ error: true, message: err.message });
@@ -131,6 +134,68 @@ router.patch('/:issueId/comments/:commentId', async (req, res) => {
         console.log(err);
         return res.status(400).send({ error: true, message: err.message });
     }
+});
+
+router.get('/:issueId/attachments', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+
+    try {
+        const handles = await IssueService.getIssueAttachmentHandles(projectId, req.params.issueId);
+        return res.send(handles);
+    } catch(err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
+router.get('/:issueId/attachments/:fileId', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+
+    try {
+        const attachment = await IssueService.getAttachment(projectId, req.params.issueId, req.params.fileId);
+        const filePath = attachment.success && path.resolve(__dirname + "/../../../" + attachment.data.path);
+        if(!filePath) return res.send("File does not exist");
+        fs.readFile(filePath, (err, data) => {
+            if(err) console.log(err);
+            res.contentType('application/pdf')
+                .send(`data:application/pdf;base64,${new Buffer.from(data).toString('base64')}`);
+
+        });
+
+    } catch(err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
+router.post('/:issueId/attachments', storage.single('attachments'), async (req, res) => {
+    const projectId = res.locals.params.projectId;
+    try {
+        const file = req.file && await IssueService.addAttachment(projectId, req.params.issueId, req.file.path);
+        return file ? res.send(file) : res.send("No file attached");
+    } catch(err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+
+});
+
+router.patch('/:issueId/attachments/:fileId', async (req, res) => {
+
+});
+
+router.delete('/:issueId/attachments/:fileId', async (req, res) => {
+    const projectId = res.locals.params.projectId;
+
+    try {
+        const file = await IssueService.removeAttachment(projectId, req.params.issueId, req.params.fileId);
+        console.log(file);
+        return res.send('File attachment removed');
+    } catch(err) {
+        console.log(err);
+        return res.status(400).send({ error: true, message: err.message });
+    }
+
 });
 
 module.exports = router;

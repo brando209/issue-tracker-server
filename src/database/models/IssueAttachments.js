@@ -13,8 +13,11 @@ class IssueAttachments {
         return this.table.getEntry("*", `issueId=${issueId} AND fileId=${fileId}`);
     }
 
-    getIssueAttachments(projectId, issueId) {
-        return this.table.getEntrys("*", `issueId=${issueId}`);
+    getIssueAttachments(projectId, issueIds) {
+        if(Array.isArray(issueIds)) {
+            return this.table.getEntrys("*", `issueId IN (${issueIds})`);
+        }
+        return this.table.getEntrys("*", `issueId=${issueIds}`);
     }
 
     updateAttachment(projectId, issueId, updateObject) {

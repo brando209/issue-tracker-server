@@ -1,4 +1,4 @@
-const { Projects, Issues, Comments } = require('../../database/models');
+const { Projects, Issues, Comments, Files, IssueAttachments } = require('../../database/models');
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
@@ -20,6 +20,19 @@ class IssueService {
     async getAllIssues(projectId) {
         const issues = await Issues.getAllIssues(projectId);
         if (!issues.success) throw new Error("Unable to retrieve issue details");
+
+        const issueIds = issues.data.map(issue => issue.id);
+        const attachmentsData = await IssueAttachments.getIssueAttachments(projectId, issueIds);
+        
+        if(attachmentsData.success) {
+            issues.data = issues.data.map(issue => {
+                const attachments = attachmentsData.data
+                    .filter(attachment => attachment.issueId === issue.id)
+                    .map(attachment => (attachment.fileId));
+                return { ...issue, attachments: attachments }
+            });
+        } else issues.data.attachments = [];
+
         return issues.data;
     }
 
@@ -88,6 +101,32 @@ class IssueService {
     async getIssueComments(projectId, issueId) {
         const comment = await Comments.getAllIssueComments(projectId, issueId);
         return comment.data;
+    }
+
+    async addAttachment(projectId, issueId, filePath, fileName) {
+        const file = await Files.createFile(filePath);
+        const attachment = await IssueAttachments.createAttachment(projectId, issueId, file.id);
+        return attachment
+    }
+
+    async removeAttachment(projectId, issueId, fileId) {
+        const file = await Files.removeFile(fileId);
+        return file;
+    }
+
+    async getAttachment(projectId, issueId, fileId) {
+        const file = await Files.getSingleFile(fileId);
+        return file;
+    }
+
+    async getIssueAttachmentHandles(projectId, issueId) {
+        const attachments = await IssueAttachments.getIssueAttachments(projectId, issueId);
+        const handles = attachments.success && attachments.data.map(attachment => attachment.fileId);
+        return handles;
+    }
+
+    async editAttachment(projectId, issueId, fileId, update) {
+
     }
 }
 
