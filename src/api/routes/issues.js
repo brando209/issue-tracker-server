@@ -152,14 +152,14 @@ router.get('/:issueId/attachments/:fileId', async (req, res) => {
     const projectId = res.locals.params.projectId;
 
     try {
-        const attachment = await IssueService.getAttachment(projectId, req.params.issueId, req.params.fileId);
-        const filePath = attachment.success && path.resolve(__dirname + "/../../../" + attachment.data.path);
+        const file = await IssueService.getAttachment(projectId, req.params.issueId, req.params.fileId);
+        const filePath = file.success && path.resolve(__dirname + "/../../../" + file.data.path);
         if(!filePath) return res.send("File does not exist");
         fs.readFile(filePath, (err, data) => {
             if(err) console.log(err);
-            res.contentType('application/pdf')
+            res.contentType('application/pdf').append('Content-Filename', file.data.name)
+                .append('Access-Control-Expose-Headers', 'Content-Filename')
                 .send(`data:application/pdf;base64,${new Buffer.from(data).toString('base64')}`);
-
         });
 
     } catch(err) {
@@ -171,7 +171,7 @@ router.get('/:issueId/attachments/:fileId', async (req, res) => {
 router.post('/:issueId/attachments', storage.single('attachments'), async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        const file = req.file && await IssueService.addAttachment(projectId, req.params.issueId, req.file.path);
+        const file = req.file && await IssueService.addAttachment(projectId, req.params.issueId, req.file.path, req.file.originalname);
         return file ? res.send(file) : res.send("No file attached");
     } catch(err) {
         console.log(err);

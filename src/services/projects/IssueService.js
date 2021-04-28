@@ -26,10 +26,10 @@ class IssueService {
         
         if(attachmentsData.success) {
             issues.data = issues.data.map(issue => {
-                const attachments = attachmentsData.data
+                const attachmentHandles = attachmentsData.data
                     .filter(attachment => attachment.issueId === issue.id)
                     .map(attachment => (attachment.fileId));
-                return { ...issue, attachments: attachments }
+                return { ...issue, attachmentHandles: attachmentHandles }
             });
         } else issues.data.attachments = [];
 
@@ -104,9 +104,9 @@ class IssueService {
     }
 
     async addAttachment(projectId, issueId, filePath, fileName) {
-        const file = await Files.createFile(filePath);
-        const attachment = await IssueAttachments.createAttachment(projectId, issueId, file.id);
-        return attachment
+        const file = await Files.createFile(filePath, fileName);
+        await IssueAttachments.createAttachment(projectId, issueId, file.id);
+        return file
     }
 
     async removeAttachment(projectId, issueId, fileId) {
@@ -115,7 +115,8 @@ class IssueService {
     }
 
     async getAttachment(projectId, issueId, fileId) {
-        const file = await Files.getSingleFile(fileId);
+        const attachment = await IssueAttachments.getAttachment(projectId, issueId, fileId);
+        const file = attachment.success && await Files.getSingleFile(fileId);
         return file;
     }
 
