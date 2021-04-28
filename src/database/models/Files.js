@@ -5,8 +5,8 @@ class Files {
         this.table = new Table("files");
     }
 
-    createFile(path) {
-        return this.table.createEntry({ path });
+    createFile(path, filename) {
+        return this.table.createEntry({ path, name: filename });
     }
 
     getSingleFile(fileId) {
