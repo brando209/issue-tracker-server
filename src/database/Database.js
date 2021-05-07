@@ -1,26 +1,43 @@
 const mysql = require('mysql');
 require('dotenv').config();
 
-const connection = mysql.createConnection({
+const connectionOptions = {
     host: 'localhost',
     user: 'root',
     password: process.env.DB_SECRET,
     database: 'trackappdb',
+}
+
+const connection = mysql.createPool({
+    connectionLimit:  10,
+    ...connectionOptions
 });
+
+connection.on('acquire', function (connection) {
+    console.log('Connection %d acquired', connection.threadId);
+});
+
+connection.on('connection', (connect) => {
+    console.log("Connection %d established", connect.threadId);
+});
+
+connection.on('release', function (connection) {
+    console.log('Connection %d released', connection.threadId);
+  });
 
 const makeArray = val => (typeof val === "string" && val !== "*") || (typeof val === "object" && !Array.isArray(val)) && val !== null ? [val] : val;
 
 class Database {
     constructor(connection) {
         this.connection = connection;
-        this.open();
     }
 
-    open() {
-        this.connection.connect((err) => {
-            if (err) throw err;
-            console.log("Connected to database!");
-        })
+    setLoggedUserIdVariable(id) {
+        return this.runSqlQuery(`SET @loggedUserId = ${id};`);
+    }
+
+    getLoggedUserIdVariable() {
+        return this.runSqlQuery(`SELECT @loggedUserId;`);
     }
 
     async close() {
@@ -35,6 +52,10 @@ class Database {
                 return resolve(JSON.parse(JSON.stringify(result)));
             });
         })
+    }
+
+    escapeValue(value) {
+        return (Number.isInteger(Number(value))) ? value : connection.escape(value);
     }
 
     escapeValues(valueStringArray) {
