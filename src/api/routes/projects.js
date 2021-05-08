@@ -39,7 +39,7 @@ router.get('/:projectId', async (req, res) => {
 
 router.patch('/:projectId', validation.editProject, async (req, res) => {
     try {
-        const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body);
+        const updatedProject = await ProjectService.changeProjectDetails(req.params.projectId, req.body, req.user.id);
         return res.status(200).send(updatedProject);
     } catch(err) {
         return res.status(400).send({ error: true, message: err.message });
@@ -48,7 +48,7 @@ router.patch('/:projectId', validation.editProject, async (req, res) => {
 
 router.delete('/:projectId', async (req, res) => {
     try {
-        await ProjectService.removeProject(req.params.projectId);
+        await ProjectService.removeProject(req.params.projectId, req.user.id);
         return res.sendStatus(200);
     } catch(err) {
         return res.status(400).send({ error: true, message: err.message });

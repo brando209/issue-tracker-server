@@ -6,7 +6,7 @@ class Projects {
     }
 
     createProject(newProject, creatorId) {
-        return this.table.createEntry({ ...newProject, creatorId })
+        return this.table.createEntry({ ...newProject, creatorId }, creatorId);
     }
 
     getSingleProject(projectId) {
@@ -30,12 +30,12 @@ class Projects {
         return this.table.getEntrys(columns, `pc.collaboratorId=${userId}`, joinOptions);
     }
 
-    updateProject(projectId, updateObject) {
-        return this.table.updateEntrys(`id=${projectId}`, updateObject);
+    updateProject(projectId, updateObject, actorId = null) {
+        return this.table.updateEntrys(`id=${projectId}`, updateObject, actorId);
     }
 
-    removeProject(projectId) {
-        return this.table.removeEntrys(`id=${projectId}`);
+    removeProject(projectId, actorId = null) {
+        return this.table.removeEntrys(`id=${projectId}`, actorId);
     }
 
 }

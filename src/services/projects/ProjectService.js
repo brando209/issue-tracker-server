@@ -5,7 +5,7 @@ class ProjectService {
 
     async createProject(project, userId) {
         const projectCreated = await Projects.createProject(project, userId);
-        if (!projectCreated.success) throw new Error("Project not created");
+        if (!projectCreated.success) throw new Error(projectCreated.message);
         await this.addCollaborator(projectCreated.id, userId);
         return this.getProjectDetails(projectCreated.id);
     }
@@ -35,18 +35,18 @@ class ProjectService {
         return projects;
     }
 
-    async changeProjectDetails(projectId, newDetails) {
-        const projectChanged = await Projects.updateProject(projectId, newDetails);
-        if (!projectChanged.success) throw new Error("Unable to update project information");
+    async changeProjectDetails(projectId, newDetails, actorId) {
+        const projectChanged = await Projects.updateProject(projectId, newDetails, actorId);
+        if (!projectChanged.success) throw new Error(projectChanged.message);
         return this.getProjectDetails(projectId);
     }
 
-    async removeProject(projectId) {
+    async removeProject(projectId, actorId) {
         //Never delete this record from the database
         if(projectId === 18) throw new Error("Unable to delete this project (Issue Tracker)");
 
-        const projectRemoved = await Projects.removeProject(projectId);
-        if (!projectRemoved.success) throw new Error("Unable to remove project record");
+        const projectRemoved = await Projects.removeProject(projectId, actorId);
+        if (!projectRemoved.success) throw new Error(projectRemoved.message);
         return projectRemoved.data;
     }
 

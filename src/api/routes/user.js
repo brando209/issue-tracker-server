@@ -42,7 +42,7 @@ router.patch('/changePassword', async (req, res) => {
     }
 });
 
-router.get('/login', authorization.authorizeJWT, async (req, res) => {
+router.get('/login', async (req, res) => {
     try {
         const userRecord = await UserService.getAccountDetails(req.user.id);
         return res.status(200).send(userRecord);
