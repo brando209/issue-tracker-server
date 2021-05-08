@@ -2,11 +2,14 @@ const { Projects, Issues, Comments, Files, IssueAttachments } = require('../../d
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
+        const assignTo = issue.assigneeId;
+        delete issue.assigneeId;
+
         let issueCreated = await Issues.createIssue(issue, projectId, creatorId);
         if (!issueCreated.success) throw new Error(issueCreated.message);
-        if (issue.assigneeId) {
+        if (assignTo && assignTo !== "") {
             console.log("This issue is being assigned on creation", issue);
-            issueCreated = await this.assignIssue(projectId, issueCreated.id, issue.assigneeId);
+            issueCreated = await this.assignIssue(projectId, issueCreated.id, assignTo, creatorId);
         }
         return this.getIssueDetails(projectId, issueCreated.id);
     }
@@ -36,20 +39,20 @@ class IssueService {
         return issues.data;
     }
 
-    async updateIssueDetails(projectId, issueId, details) {
-        const issueUpdated = await Issues.updateIssue(projectId, issueId, details);
+    async updateIssueDetails(projectId, issueId, details, actorId) {
+        const issueUpdated = await Issues.updateIssue(projectId, issueId, details, actorId);
         if (!issueUpdated.success) throw new Error("Unable to update issue details");
         return this.getIssueDetails(projectId, issueId);
     }
 
-    async removeIssue(projectId, issueId) {
-        const issueRemoved = await Issues.removeIssue(projectId, issueId);
+    async removeIssue(projectId, issueId, actorId) {
+        const issueRemoved = await Issues.removeIssue(projectId, issueId, actorId);
         if (!issueRemoved.success) throw new Error("Unable to remove issue");
         return issueRemoved.data;
     }
 
-    async assignIssue(projectId, issueId, userId) {
-        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: userId, status: "open" });
+    async assignIssue(projectId, issueId, assignedToId, assignedById) {
+        const issueAssigned = await Issues.updateIssue(projectId, issueId, { assigneeId: assignedToId, status: "open" }, assignedById);
         if (!issueAssigned.success) throw new Error("Unable to assign issue to user");
         
         const issue = await Issues.getSingleIssue(projectId, issueId);

@@ -50,14 +50,14 @@ class ProjectService {
         return projectRemoved.data;
     }
 
-    async addCollaborator(projectId, collaboratorId) {
-        const collabAdded = await Collaborators.addProjectCollaborator(projectId, collaboratorId);
-        if (!collabAdded.success) throw new Error("User not added as collaborator");
+    async addCollaborator(projectId, collaboratorId, actorId) {
+        const collabAdded = await Collaborators.addProjectCollaborator(projectId, collaboratorId, actorId);
+        if (!collabAdded.success) throw new Error(collabAdded.message);
     }
 
-    async removeCollaborator(projectId, collaboratorId) {
-        const collabRemoved = await Collaborators.removeProjectCollaborator(projectId, collaboratorId);
-        if (!collabRemoved.success) throw new Error("User not removed from collaborators");
+    async removeCollaborator(projectId, collaboratorId, actorId) {
+        const collabRemoved = await Collaborators.removeProjectCollaborator(projectId, collaboratorId, actorId);
+        if (!collabRemoved.success) throw new Error(collabRemoved.message);
     }
 
     async getCollaborators(projectId) {

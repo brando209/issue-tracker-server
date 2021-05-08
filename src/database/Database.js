@@ -9,7 +9,7 @@ const connectionOptions = {
 }
 
 const connection = mysql.createPool({
-    connectionLimit:  10,
+    connectionLimit:  1,
     ...connectionOptions
 });
 
@@ -77,19 +77,27 @@ class Database {
         return this.runSqlQuery(`SELECT ${SQLColumns} FROM ${table} ${SQLJoin} ${rows === "*" && options === "*"? "" : "WHERE"} ${SQLRows}${SQLOptions};`);
     }
 
-    addRecord(table, record) {
+    async addRecord(table, record) {
         const keys = Object.keys(record);
         const values = this.escapeValues(Object.values(record));
+
+        const uvar = await this.getLoggedUserIdVariable();
+        console.log(uvar);
+
         return this.runSqlQuery(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${values.join(", ")})`);
     }
 
-    removeRecords(table, rows) {
+    async removeRecords(table, rows) {
         rows = makeArray(rows);
         const SQLRows = rows.join(" OR ");
+
+        const uvar = await this.getLoggedUserIdVariable();
+        console.log(uvar);
+
         return this.runSqlQuery(`DELETE FROM ${table} WHERE ${SQLRows}`);
     }
 
-    updateRecords(table, columns, rows) {
+    async updateRecords(table, columns, rows) {
         // columns elements are strings of the form ( key='value' )
         // This block will escape rhs, removing quotes first
         columns = makeArray(columns).map(col => {
@@ -106,6 +114,10 @@ class Database {
             return res;
         });
         rows = makeArray(rows);
+
+        const uvar = await this.getLoggedUserIdVariable();
+        console.log(uvar);
+
         return this.runSqlQuery(`UPDATE ${table} SET ${columns.join(", ")} WHERE ${rows.join(" OR ")}`);
     }
 

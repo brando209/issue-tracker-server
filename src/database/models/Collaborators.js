@@ -5,12 +5,12 @@ class Collaborators {
         this.table = new Table("project_collaborators");
     }
 
-    async addProjectCollaborator(projectId, collaboratorId) {
-        return this.table.createEntry({ projectId, collaboratorId });
+    async addProjectCollaborator(projectId, collaboratorId, actorId = null) {
+        return this.table.createEntry({ projectId, collaboratorId }, actorId);
     }
 
-    async removeProjectCollaborator(projectId, collaboratorId) {
-        return this.table.removeEntrys([`projectId='${projectId}' AND collaboratorId='${collaboratorId}'`]);
+    async removeProjectCollaborator(projectId, collaboratorId, actorId = null) {
+        return this.table.removeEntrys([`projectId='${projectId}' AND collaboratorId='${collaboratorId}'`], actorId);
     }
 
     async getSingleProjectCollaborator(projectId, collaboratorId) {     

@@ -14,6 +14,7 @@ router.use(authorization.authorizeJWT);
 router.post('/', validation.issue, async (req, res) => {
     const projectId = res.locals.params.projectId;
 
+    console.log(req.body);
     try {
         const issue = await IssueService.createIssue(projectId, req.user.id, req.body);
         return res.status(200).send(issue);
@@ -46,7 +47,7 @@ router.get('/:issueId', async (req, res) => {
 router.patch('/:issueId/assign', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        const issue = await IssueService.assignIssue(projectId, req.params.issueId, req.body.assigneeId);
+        const issue = await IssueService.assignIssue(projectId, req.params.issueId, req.body.assigneeId, req.user.id);
         return res.status(200).send(issue);
     } catch (err) {
         return res.status(404).send({ error: true, message: err.message });
@@ -68,7 +69,8 @@ router.patch('/:issueId/advance', async (req, res) => {
 router.patch('/:issueId', validation.editIssue, async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body);
+        console.log("Requesting user is:", req.user.id)
+        const updateIssue = await IssueService.updateIssueDetails(projectId, req.params.issueId, req.body, req.user.id);
         return res.status(200).send(updateIssue);
     } catch (err) {
         return res.status(404).send({ error: true, message: err.message });
@@ -78,7 +80,7 @@ router.patch('/:issueId', validation.editIssue, async (req, res) => {
 router.delete('/:issueId', async (req, res) => {
     const projectId = res.locals.params.projectId;
     try {
-        await IssueService.removeIssue(projectId, req.params.issueId);
+        await IssueService.removeIssue(projectId, req.params.issueId, req.user.id);
         return res.sendStatus(200);
     } catch (err) {
         return res.status(404).send({ error: true, message: err.message });
