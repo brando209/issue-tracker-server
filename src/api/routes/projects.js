@@ -76,11 +76,20 @@ router.post('/:projectId/collaborators', async (req, res) => {
 router.delete('/:projectId/collaborators', async (req, res) => {
     try {
         await ProjectService.removeCollaborator(req.params.projectId, req.body.collaboratorId, req.user.id);
-        return res.sedStatus(200);
+        return res.sendStatus(200);
     } catch (err) {
         return res.status(400).send({ error: true, message: err.message });
     }
 });
+
+router.get('/:projectId/reports', async (req, res) => {
+    try {
+        const report = await ProjectService.getReport(req.params.projectId);
+        return res.status(200).send(report);
+    } catch(err) {
+        return res.status(400).send({ error: true, message: err.message });
+    }
+})
 
 router.use('/:projectId/issues/', passRouteParams, issueRouter);
 

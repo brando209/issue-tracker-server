@@ -1,5 +1,6 @@
 const { Projects, Collaborators } = require('../../database/models');
 const IssueService = require('./IssueService');
+const ProjectsLog = require('../../database/models/ProjectsLog');
 
 class ProjectService {
 
@@ -64,6 +65,12 @@ class ProjectService {
         const collaborators = await Collaborators.getAllProjectCollaborators(projectId);
         if (!collaborators.success) throw new Error("Unable to retrieve project collaborators");
         return collaborators.data;
+    }
+
+    async getReport(projectId) {
+        const report = await ProjectsLog.getProjectLog(projectId);
+        if(!report.success) throw new Error(report.message);
+        return report.data;
     }
 
 }
