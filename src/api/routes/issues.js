@@ -200,7 +200,7 @@ router.delete('/:issueId/attachments/:fileId', async (req, res) => {
 
 });
 
-router.get('/:issueId/reports', (req, res) => {
+router.get('/:issueId/reports', async (req, res) => {
     try {
         const report = await IssueService.getReport(res.locals.params.projectId, req.params.issueId);
         return res.status(200).send(report);
