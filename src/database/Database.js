@@ -66,6 +66,7 @@ class Database {
     }
 
     query(table, columns = "*" || [], rows = "*" || [], options = "*" || [], joinOptions = null) {
+        console.log(columns, rows, options, joinOptions);
         rows = makeArray(rows);
         columns = makeArray(columns);
         options = makeArray(options);
@@ -73,8 +74,8 @@ class Database {
         const SQLRows = rows === "*" ? "" : rows.join(" OR ");
         const SQLColumns = columns === "*" ? columns : columns.join(",");
         const SQLJoin = joinOptions === null ? "" : joinOptions.map(value => (`INNER JOIN ${value.joinTable} ON ${value.joinColumns}`)).join(" ");
-        const SQLOptions = options === "*" ? "" : " AND " + options.join(" AND ");
-        return this.runSqlQuery(`SELECT ${SQLColumns} FROM ${table} ${SQLJoin} ${rows === "*" && options === "*"? "" : "WHERE"} ${SQLRows}${SQLOptions};`);
+        const SQLOptions = (options === "*" || options === []) ? "" : options.join(" AND ");
+        return this.runSqlQuery(`SELECT ${SQLColumns} FROM ${table} ${SQLJoin} ${rows === "*" ? "" : "WHERE"} ${SQLRows}${SQLOptions};`);
     }
 
     async addRecord(table, record) {

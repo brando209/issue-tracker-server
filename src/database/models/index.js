@@ -6,7 +6,18 @@ const Invites = require('./Invites');
 const Comments = require('./Comments');
 const Files = require('./Files');
 const IssueAttachments = require('./IssueAttachments');
+const ProjectsLog = require('./ProjectsLog');
+const IssuesLog = require('./IssuesLog');
 
 module.exports = {
-    Users, Projects, Issues, Collaborators, Invites, Comments, Files, IssueAttachments
+    Users,
+    Projects,
+    Issues,
+    Collaborators,
+    Invites,
+    Comments,
+    Files,
+    IssueAttachments,
+    ProjectsLog,
+    IssuesLog
 }
