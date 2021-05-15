@@ -2,7 +2,7 @@ const Table = require('./Table');
 
 class IssuesLog {
     constructor() {
-        this.table = new Table("projects_log");
+        this.table = new Table("issues_log");
     }
 
     getIssueLog(projectId, issueId) {
