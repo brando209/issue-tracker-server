@@ -7,15 +7,15 @@ class Table {
         this.columns = columns;
     }
 
-    async getEntry(columns, rows, joins = null) {
-        const result = await db.query(this.tableName, columns, rows, "*", joins)
+    async getEntry(columns, rows, joins = null, options = []) {
+        const result = await db.query(this.tableName, columns, rows, options, joins)
             .then(data => ({ success: data.length > 0 ? true : false, data: data[0] }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return result;
     }
 
-    async getEntrys(columns, rows = "*", joins = null) {
-        const result = await db.query(this.tableName, columns, rows, "*", joins)
+    async getEntrys(columns, rows = "*", joins = null, options = []) {
+        const result = await db.query(this.tableName, columns, rows, options, joins)
             .then(data => ({ success: true, data }))
             .catch(err => ({ success: false, message: err.sqlMessage }));
         return result;
