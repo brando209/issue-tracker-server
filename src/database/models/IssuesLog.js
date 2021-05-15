@@ -6,7 +6,7 @@ class IssuesLog {
     }
 
     getIssueLog(projectId, issueId) {
-        return this.table.getEntry("*", `issueId=${issueId}`);
+        return this.table.getEntrys("*", `issueId=${issueId}`);
     }
 
 }
