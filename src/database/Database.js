@@ -66,7 +66,6 @@ class Database {
     }
 
     query(table, columns = "*" || [], rows = "*" || [], options = "*" || [], joinOptions = null) {
-        console.log(columns, rows, options, joinOptions);
         rows = makeArray(rows);
         columns = makeArray(columns);
         options = makeArray(options);
@@ -81,20 +80,12 @@ class Database {
     async addRecord(table, record) {
         const keys = Object.keys(record);
         const values = this.escapeValues(Object.values(record));
-
-        const uvar = await this.getLoggedUserIdVariable();
-        console.log(uvar);
-
         return this.runSqlQuery(`INSERT INTO ${table} (${keys.join(", ")}) VALUES (${values.join(", ")})`);
     }
 
     async removeRecords(table, rows) {
         rows = makeArray(rows);
         const SQLRows = rows.join(" OR ");
-
-        const uvar = await this.getLoggedUserIdVariable();
-        console.log(uvar);
-
         return this.runSqlQuery(`DELETE FROM ${table} WHERE ${SQLRows}`);
     }
 
@@ -115,10 +106,6 @@ class Database {
             return res;
         });
         rows = makeArray(rows);
-
-        const uvar = await this.getLoggedUserIdVariable();
-        console.log(uvar);
-
         return this.runSqlQuery(`UPDATE ${table} SET ${columns.join(", ")} WHERE ${rows.join(" OR ")}`);
     }
 
