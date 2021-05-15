@@ -1,4 +1,4 @@
-const { Projects, Issues, Comments, Files, IssueAttachments } = require('../../database/models');
+const { Projects, Issues, Comments, Files, IssueAttachments, IssuesLog } = require('../../database/models');
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
@@ -131,6 +131,12 @@ class IssueService {
 
     async editAttachment(projectId, issueId, fileId, update) {
 
+    }
+
+    async getReport(projectId, issueId) {
+        const report = await IssuesLog.getIssueLog(projectId, issueId);
+        if(!report.success) throw new Error(report.message);
+        return report.data
     }
 }
 

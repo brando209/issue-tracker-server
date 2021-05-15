@@ -200,4 +200,13 @@ router.delete('/:issueId/attachments/:fileId', async (req, res) => {
 
 });
 
+router.get('/:issueId/reports', (req, res) => {
+    try {
+        const report = await IssueService.getReport(res.locals.params.projectId, req.params.issueId);
+        return res.status(200).send(report);
+    } catch(err) {
+        return res.status(400).send({ error: true, message: err.message });
+    }
+});
+
 module.exports = router;
