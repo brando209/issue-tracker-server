@@ -3,6 +3,17 @@ const Table = require('./Table');
 class Issue { 
     constructor() {
         this.table = new Table("issues");
+        this.joinOptions = [{ 
+            joinTable: "projects", 
+            joinColumns: `issues.projectId = projects.id`
+        }, {
+            joinTable: "users creator",
+            joinColumns:  "creator.id = issues.creatorId"
+        }, {
+            joinTable: "users assignee",
+            joinColumns: "assignee.id = issues.assigneeId"
+        }];
+        this.selection = "issues.*, creator.userName as creator, assignee.userName as assignee";
     }
 
     createIssue(issue, projectId, creatorId) {
@@ -10,12 +21,19 @@ class Issue {
     }
 
     getSingleIssue(projectId, issueId) {
-        return this.table.getEntry("*", `id=${issueId}`);
+        return this.table.getEntry(
+            this.selection, 
+            `issues.id=${issueId}`,
+            this.joinOptions
+        );
     }
 
     getAllIssues(projectId) {
-        const joinOptions = { joinTable: "projects", joinColumns: `issues.projectId = projects.id`}
-        return this.table.getEntrys("issues.*", `issues.projectId=${projectId}`, joinOptions);
+        return this.table.getEntrys(
+            this.selection,
+            `issues.projectId=${projectId}`,
+            this.joinOptions
+        );
     }
 
     updateIssue(projectId, issueId, updateObject, actorId = null) {
