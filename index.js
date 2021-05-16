@@ -2,9 +2,9 @@ const express = require('express');
 const logger = require('morgan');
 const cors = require('cors');
 
-const authRouter = require('./api/routes/authentication');
-const userRouter = require('./api/routes/user');
-const projectRouter = require('./api/routes/projects');
+const authRouter = require('./src/api/routes/authentication');
+const userRouter = require('./src/api/routes/user');
+const projectRouter = require('./src/api/routes/projects');
 
 const API_PORT = 3001;
 
@@ -31,4 +31,8 @@ app.use('/api/auth', authRouter);
 app.use('/api/user', userRouter);
 app.use('/api/projects', projectRouter);
 
-app.listen(API_PORT, console.log(`Listening on port ${API_PORT}`));
+app.get('/', (req, res) => {
+    res.send("Welcome!");
+})
+
+app.listen(process.env.PORT || API_PORT, console.log(`Listening on port ${process.env.PORT || API_PORT}`));

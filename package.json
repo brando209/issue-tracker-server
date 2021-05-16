@@ -4,7 +4,7 @@
   "description": "The backend for an issue tracker application.",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node index.js",
     "test": "jest"
   },
   "repository": {
