@@ -10,6 +10,7 @@ class Issue {
             joinTable: "users creator",
             joinColumns:  "creator.id = issues.creatorId"
         }, {
+            joinType: "LEFT",
             joinTable: "users assignee",
             joinColumns: "assignee.id = issues.assigneeId"
         }];
