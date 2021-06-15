@@ -14,7 +14,7 @@ class Users {
     }
 
     getUserById(userId) {
-        return this.table.getEntry(["id", "firstName", "lastName", "userName", "email"], `id='${userId}'`);
+        return this.table.getEntry(["id", "firstName", "lastName", "userName", "email", "password"], `id='${userId}'`);
     }
 
     getAllUsers() {

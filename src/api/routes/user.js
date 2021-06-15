@@ -35,7 +35,7 @@ router.patch('/', async (req, res) => {
 
 router.patch('/changePassword', async (req, res) => {
     try {
-        await UserService.changePassword(req.user.id, req.body.password);
+        await UserService.changePassword(req.user.id, req.body.currentPassword, req.body.newPassword);
         return res.sendStatus(200);
     } catch(err) {
         return res.status(400).send({ error: true, message: "Password not updated" });

@@ -4,11 +4,19 @@ const { Users } = require('../../database/models');
 
 class UserService {
 
-    async changePassword(userId, password) {
-        const hashedPassword = await bcrypt.hash(password, 10);
+    async changePassword(userId, currentPassword, newPassword) {
+        const userRecord = await Users.getUserById(userId);
+        if(!userRecord.success) throw new Error("The provided user id does not exist.");
+        const user = userRecord.data;
+
+        const validPassword = await bcrypt.compare(currentPassword, user.password);
+        if(!validPassword) throw new Error("Incorrect Password");
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
         const update = { password: hashedPassword };
         const passwordChanged = await Users.updateUser(userId, update);
         if(!passwordChanged.success) throw new Error("Unable to update user password");
+
         return passwordChanged;
     }
 

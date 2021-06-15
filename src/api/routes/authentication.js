@@ -25,7 +25,7 @@ router.post('/login', validation.signin, async (req, res) => {
         })
         return res.status(200).json({ success: true, user, token });
     } catch(err) {
-        return res.status(400).json({ success: false, message: err.message });
+        return res.status(401).json({ success: false, message: err.message });
     }
 });
 
