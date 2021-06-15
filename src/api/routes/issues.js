@@ -121,8 +121,6 @@ router.delete('/:issueId/comments/:commentId', async (req, res) => {
 
 router.patch('/:issueId/comments/:commentId', async (req, res) => {
     const projectId = res.locals.params.projectId;
-    const comment = req.body.comment;
-    console.log(comment);
     try {
         const comment = await IssueService.editComment(
             projectId, 
