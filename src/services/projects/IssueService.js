@@ -1,4 +1,6 @@
 const { Projects, Issues, Comments, Files, IssueAttachments, IssuesLog } = require('../../database/models');
+const { currentDatetime } = require('../utils');
+
 class IssueService {
 
     async createIssue(projectId, creatorId, issue) {
@@ -17,6 +19,10 @@ class IssueService {
     async getIssueDetails(projectId, issueId) {
         const issueRecord = await Issues.getSingleIssue(projectId, issueId);
         if (!issueRecord.success) throw new Error("Unable to retrieve issue details");
+        const attachmentsData = await IssueAttachments.getIssueAttachments(projectId, issueId)
+        if(attachmentsData.success) {
+            issueRecord.data.attachmentHandles = attachmentsData.data.map(attachment => (attachment.fileId));
+        } else issueRecord.data.attachmentHandles = [];
         return issueRecord.data;
     }
 
@@ -34,7 +40,7 @@ class IssueService {
                     .map(attachment => (attachment.fileId));
                 return { ...issue, attachmentHandles: attachmentHandles }
             });
-        } else issues.data.attachments = [];
+        } else issues.data.attachmentHandles = [];
 
         return issues.data;
     }
@@ -96,7 +102,7 @@ class IssueService {
         if(!comment.success) throw new Error("Something went wrong, cannot update comment");
         if(comment.data.creatorId !== userId) throw new Error("Cannot edit comment, not creator");
 
-        comment = await Comments.editComment(projectId, issueId, commentId, update);
+        comment = await Comments.editComment(projectId, issueId, commentId, update, currentDatetime());
         console.log("edited", comment);
         return comment.data;
     }

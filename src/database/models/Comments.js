@@ -6,7 +6,6 @@ class Comments {
     }
 
     async addComment(projectId, issueId, userId, comment) {
-        console.log(comment);
         return this.table.createEntry({ body: comment, creatorId: userId, issueId });
     }
 
@@ -14,21 +13,29 @@ class Comments {
         return this.table.removeEntrys([`issueId='${issueId}' AND id='${commentId}'`]);
     }
 
-    async getComment(projectId, issueId, commentId) {     
-        return this.table.getEntry("*", [`issueId='${issueId}' AND id='${commentId}'`]);
+    async getComment(projectId, issueId, commentId) {
+        const joinOptions = [{
+            joinTable: "users creator",
+            joinColumns: "creator.id = comments.creatorId"
+        }]    
+        return this.table.getEntry("comments.*, creator.userName as creator", [`comments.issueId='${issueId}' AND comments.id='${commentId}'`], joinOptions);
     }
 
-    async editComment(projectId, issueId, commentId, comment, editedAt) {
-        const updateObject = { body: comment.body, edited_at: editedAt }
+    async editComment(projectId, issueId, commentId, commentBody, editedAt) {
+        const updateObject = { body: commentBody, edited_at: editedAt }
         const result = await this.table.updateEntrys( `issueId=${issueId} AND id=${commentId}`, updateObject);
         if(result.success) {
-            return this.table.getEntry("*", `id=${commentId}`);
+            return this.getComment(projectId, issueId, commentId);
         }
         return result;
     }
 
     async getAllIssueComments(projectId, issueId) {
-        return this.table.getEntrys("*", `issueId=${issueId}`);
+        const joinOptions = [{
+            joinTable: "users creator",
+            joinColumns: "creator.id = comments.creatorId"
+        }]
+        return this.table.getEntrys("comments.*, creator.userName as creator", `comments.issueId=${issueId}`, joinOptions);
     }
 
 }
